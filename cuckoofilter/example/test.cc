@@ -54,10 +54,14 @@ int main(int argc, char **argv) {
   // find should return false
   // contains should return false
   for (int i = 0; i < num_inserted; i++) {
+    // std::cout << "Bla1: " << i << std::endl;
     assert(filteredhash.erase(i));
+    // std::cout << "Bla2: " << i << std::endl;
     uint64_t val;
     assert(!filteredhash.find(i, val));
+    // std::cout << "Bla3: " << i << std::endl;
     assert(!filteredhash.contains(i));
+    // std::cout << "Bla4: " << i << std::endl;
   }
 
   std::cout << "Test Successful" << std::endl;

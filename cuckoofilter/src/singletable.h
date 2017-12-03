@@ -224,6 +224,54 @@ class SingleTable {
     }
     return num;
   }
+
+  inline uint16_t read_counter(const size_t i) {
+    uint16_t counter;
+    counter = std::atomic_load_explicit(&buckets_[i].counter, std::memory_order_acquire);
+    return counter;
+  }
+
+  inline uint16_t read_even_counter(const size_t i) {
+    uint16_t counter;
+    do {
+      counter = read_counter(i);
+    } while(counter & 1);
+
+    return counter;
+  }
+
+  inline uint16_t read_odd_counter(const size_t i) {
+    uint16_t counter;
+    do {
+      counter = read_counter(i);
+    } while(!(counter & 1));
+
+    return counter;
+  }
+
+  inline bool counter_changed(const size_t i, uint16_t c) {
+    uint16_t counter;
+    std::atomic_thread_fence(std::memory_order_acquire);
+    counter = std::atomic_load_explicit(&buckets_[i].counter, std::memory_order_acquire);
+    return (counter != c);
+  }
+
+  inline void increment_even(const size_t i) {
+    buckets_[i].counter++;
+    return;
+  }
+
+  inline void increment_odd(const size_t i) {
+    uint16_t counter;
+    uint16_t new_counter;
+    do {
+      counter = read_even_counter(i);
+      new_counter = counter + 1;
+    } while(!std::atomic_compare_exchange_strong(&buckets_[i].counter, &counter, new_counter));
+    // } while(!(buckets_[i].counter).compare_exchange_strong(&counter, counter + 1,
+                          // std::memory_order_acquire, std::memory_order_relaxed));
+    return;
+  }
 };
 }  // namespace cuckoofilter
 #endif  // CUCKOO_FILTER_SINGLE_TABLE_H_
