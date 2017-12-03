@@ -23,13 +23,13 @@
 #include <test_util.hh>
 
 typedef uint32_t KeyType;
-typedef std::string KeyType2;
-typedef uint32_t ValType;
-typedef int32_t ValType2;
+typedef uint32_t KeyType2;
+typedef uint64_t ValType;
+typedef uint64_t ValType2;
 
 // The number of keys to size the table with, expressed as a power of
 // 2. This can be set with the command line flag --power
-size_t g_power = 24;
+size_t g_power = 10;
 size_t g_numkeys; // Holds 2^power
 // The number of threads spawned for each type of operation. This can
 // be set with the command line flag --thread-num
@@ -236,24 +236,24 @@ template <class KType> void StressTest(AllEnvironment<KType> *env) {
     if (!g_disable_deletes) {
       threads.emplace_back(delete_thread<KType>, env, env->gen_seed++);
     }
-    if (!g_disable_updates) {
-      threads.emplace_back(update_thread<KType>, env, env->gen_seed++);
-    }
+    // if (!g_disable_updates) {
+    //   threads.emplace_back(update_thread<KType>, env, env->gen_seed++);
+    // }
     if (!g_disable_finds) {
       threads.emplace_back(find_thread<KType>, env, env->gen_seed++);
     }
-    if (!g_disable_resizes) {
-      threads.emplace_back(resize_thread<KType>, env, env->gen_seed++);
-    }
-    if (!g_disable_iterators) {
-      threads.emplace_back(iterator_thread<KType>, env, env->gen_seed++);
-    }
-    if (!g_disable_misc) {
-      threads.emplace_back(misc_thread<KType>, env);
-    }
-    if (!g_disable_clears) {
-      threads.emplace_back(clear_thread<KType>, env, env->gen_seed++);
-    }
+    // if (!g_disable_resizes) {
+    //   threads.emplace_back(resize_thread<KType>, env, env->gen_seed++);
+    // }
+    // if (!g_disable_iterators) {
+    //   threads.emplace_back(iterator_thread<KType>, env, env->gen_seed++);
+    // }
+    // if (!g_disable_misc) {
+    //   threads.emplace_back(misc_thread<KType>, env);
+    // }
+    // if (!g_disable_clears) {
+    //   threads.emplace_back(clear_thread<KType>, env, env->gen_seed++);
+    // }
   }
   // Sleeps before ending the threads
   sleep(g_test_len);
@@ -261,7 +261,7 @@ template <class KType> void StressTest(AllEnvironment<KType> *env) {
   for (size_t i = 0; i < threads.size(); i++) {
     threads[i].join();
   }
-  std::cout << "----------Results----------" << std::endl;
+  std::cout << "Bloo----------Results----------" << std::endl;
   std::cout << "Final size:\t" << env->table.size() << std::endl;
   std::cout << "Final load factor:\t" << env->table.load_factor() << std::endl;
 }

@@ -366,8 +366,13 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::insert_impl(
     bool kickout = count > 0;
     slot = -1;
 
-    if(count == 1 && !has_lock)
+    if(count == 1 && !has_lock) {
       write_lock.lock();
+      if(victim_.used) {
+        write_lock.unlock();
+        return false;
+      }
+    }
 
     table_->increment_odd(curindex);
 
