@@ -1,6 +1,6 @@
 # CMake generated Testfile for 
-# Source directory: /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/tests
-# Build directory: /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build/tests
+# Source directory: /Users/poojanilangekar/Documents/ACF/libcuckoo/tests
+# Build directory: /Users/poojanilangekar/Documents/ACF/libcuckoo/build/tests
 # 
 # This file includes the relevant testing commands required for 
 # testing this directory and lists subdirectories to be tested as well.

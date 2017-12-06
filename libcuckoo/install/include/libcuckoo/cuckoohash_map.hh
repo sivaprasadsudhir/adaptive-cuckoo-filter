@@ -676,19 +676,14 @@ public:
   void read_from_bucket_at_slot(const size_type i,
                                 const size_type b_ind,
                                 key_value_type &key_value) const{
-    // const bucket b = buckets_[i];
-    // if(!b.occupied(b_ind)) {
-    //   assert(false);
-    // }
+    //const bucket b = buckets_[i];
     key_value = buckets_[i].kvpair(b_ind);
-    // std::cout << "Read " << i << " " << b_ind << " " << key_value.first << " " << key_value.second << std::endl;
   }
 
   template <typename K, typename... Args>
   void add_to_bucket_at_slot(const size_type bucket_ind,
                               const size_type slot, K &&key, Args &&... val) {
     // Always set partial to 0 since we don't use it.
-    //std::cout << "Insert " << bucket_ind << " " << slot << " " << key << " " << val << std::endl;
     buckets_.setKV(bucket_ind, slot, 0, std::forward<K>(key),
                    std::forward<Args>(val)...);
   }
@@ -698,6 +693,18 @@ public:
     buckets_.eraseKV(bucket_ind, slot);
   }
 
+  //Iterator: We can't use the existing iterator since the hash wrapper has been ripped out.
+  template <typename K, typename V> void iterate_all(std::list < std::pair<const K, V> >& elements) {
+    elements.clear();
+    for(size_type index = 0; index < buckets_->size(); index++) {
+      const bucket b = buckets_[index];
+      for(size_type slot = 0; slot < slot_per_bucket(); slot++) {
+        if(b.occupied(slot)) {
+          elements.push_back(b.kvpair(slot));
+        }
+      }
+    }
+  }
 
 private:
   // Constructor helpers
@@ -1078,7 +1085,7 @@ private:
     // Silence a warning from MSVC about partial being unused if is_simple.
     (void)partial;
     for (int i = 0; i < static_cast<int>(slot_per_bucket()); ++i) {
-      if (!b.occupied(i) || (!is_simple && partial != b.partial(i))) {
+      if (!b.occupied(i)) {
         continue;
       } else if (key_eq()(b.key(i), key)) {
         return i;
@@ -1225,9 +1232,6 @@ private:
     slot = -1;
     for (int i = 0; i < static_cast<int>(slot_per_bucket()); ++i) {
       if (b.occupied(i)) {
-        if (!is_simple && partial != b.partial(i)) {
-          continue;
-        }
         if (key_eq()(b.key(i), key)) {
           slot = i;
           return false;
@@ -1442,7 +1446,7 @@ private:
         return false;
       }
 
-      buckets_.setKV(to.bucket, ts, fb.partial(fs), fb.movable_key(fs),
+      buckets_.setKV(to.bucket, ts, 0, fb.movable_key(fs),
                      std::move(fb.mapped(fs)));
       buckets_.eraseKV(from.bucket, fs);
       if (depth == 1) {
@@ -1563,7 +1567,7 @@ private:
         // If x has less than the maximum number of path components,
         // create a new b_slot item, that represents the bucket we would
         // have come from if we kicked out the item at this slot.
-        const partial_t partial = b.partial(slot);
+        const partial_t partial = 0;
         if (x.depth < MAX_BFS_PATH_LEN - 1) {
           b_slot y(alt_index(hp, partial, x.bucket),
                    x.pathcode * slot_per_bucket() + slot, x.depth + 1);
@@ -1669,7 +1673,7 @@ private:
           dst_bucket_slot = old_bucket_slot;
         }
         new_buckets.setKV(dst_bucket_ind, dst_bucket_slot++,
-                          old_bucket.partial(old_bucket_slot),
+                          0,
                           old_bucket.movable_key(old_bucket_slot),
                           std::move(old_bucket.mapped(old_bucket_slot)));
       }

@@ -14,11 +14,10 @@ CuckooFilter<int, 12> filteredhash(total_items);
 
 void run_test(int n) {
   int start = n * total_items * 10;
-
-
   std::cout << "Started inserting: " << n << std::endl;
 
   // Insert items to this filtered hash table
+
   int num_inserted = 0;
   for (int i = start; i < start + total_items; i++, num_inserted++) {
     uint64_t val = 2 * i;
@@ -27,7 +26,7 @@ void run_test(int n) {
     }
   }
 
-  std::cout << "Successfully inserted: " << num_inserted << std::endl;
+  std::cout << "Successfully inserted: " << num_inserted << " " << std::endl;
 
   // Check if previously inserted items are in the filter, expected
   // true for all items
@@ -47,10 +46,9 @@ void run_test(int n) {
 
   // Check non-existing items, no false positives expected
     // std::cout << "Bla: " << std::endl;
-  for (int i = start + total_items; i < start + 10 * total_items; i++) {
+  for (int i = start + total_items; i < start + (2* total_items); i++) {
     uint64_t val;
     assert(!filteredhash.find(i, val));
-    // std::cout << i << std::endl;
   }
     // std::cout << "Blu: " << std::endl;
   std::cout << "Contains of non existent things done: " << n << std::endl;

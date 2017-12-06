@@ -43,6 +43,9 @@ class CuckooFilter {
   // Number of items stored
   size_t num_items_;
 
+  // Number of buckets
+  size_t num_buckets_;
+
   typedef struct {
     size_t index;
     uint64_t tag_hash;
@@ -101,13 +104,13 @@ class CuckooFilter {
   {
     size_t assoc = 4;
     size_t max_num_keys_1 = (1U << 16) * 2;
-    size_t num_buckets = upperpower2(std::max<uint64_t>(1, max_num_keys_1 / assoc));
-    double frac = (double)max_num_keys_1 / num_buckets / assoc;
+    size_t num_buckets_ = upperpower2(std::max<uint64_t>(1, max_num_keys_1 / assoc));
+    double frac = (double)max_num_keys_1 / num_buckets_ / assoc;
     if (frac > 0.96) {
-      num_buckets <<= 1;
+      num_buckets_ <<= 1;
     }
     victim_.used = false;
-    table_ = new TableType<bits_per_item>(num_buckets);
+    table_ = new TableType<bits_per_item>(num_buckets_);
     // std::cout << "Bits per Item " << bits_per_item << std::endl;
     // hashmap = new cuckoohash_map<ItemType, uint64_t>(max_num_keys);
   }
@@ -134,6 +137,7 @@ class CuckooFilter {
   bool insert_impl(const ItemType &key, const uint64_t &val, size_t i, uint32_t tag[4], uint64_t taghash, bool has_lock);
   bool erase(const ItemType &key);
   void remove_false_positives(size_t index, size_t slot);
+  void iterate_all(std::list<std::pair < const ItemType, uint64_t> >& elements) { hashmap.iterate_all(elements);}
 
 };
 
@@ -170,8 +174,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::find(
 
   if(atomic_load(&victim_.used)) {
     write_lock.lock();
-    found = victim_.used && (key == victim_.key) &&
-          (i1 == victim_.index || i2 == victim_.index);
+    found = victim_.used && (key == victim_.key);
     if (found) {
       val = victim_.val;
       write_lock.unlock();
@@ -299,8 +302,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::findinfilter(
 
   if(atomic_load(&victim_.used)) {
     write_lock.lock();
-    found = victim_.used && (key == victim_.key) &&
-            (i1 == victim_.index || i2 == victim_.index);
+    found = victim_.used && (key == victim_.key);
     if (found) {
       write_lock.unlock();
       return true;
@@ -453,8 +455,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::erase(
 
   if(atomic_load(&victim_.used)) {
     write_lock.lock();
-    found = victim_.used && (key == victim_.key) &&
-            (i1 == victim_.index || i2 == victim_.index);
+    found = victim_.used && (key == victim_.key);
 
     if (found) {
       victim_.used = false;

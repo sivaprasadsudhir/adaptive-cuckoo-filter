@@ -1,8 +1,8 @@
-# Install script for directory: /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/libcuckoo-c
+# Install script for directory: /Users/poojanilangekar/Documents/ACF/libcuckoo/libcuckoo-c
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/install")
+  set(CMAKE_INSTALL_PREFIX "/Users/poojanilangekar/Documents/ACF/libcuckoo/install")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -29,16 +29,16 @@ endif()
 
 if("${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/install/include/libcuckoo-c/cuckoo_table_template.h;/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/install/include/libcuckoo-c/cuckoo_table_template.cc")
+   "/Users/poojanilangekar/Documents/ACF/libcuckoo/install/include/libcuckoo-c/cuckoo_table_template.h;/Users/poojanilangekar/Documents/ACF/libcuckoo/install/include/libcuckoo-c/cuckoo_table_template.cc")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-file(INSTALL DESTINATION "/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/install/include/libcuckoo-c" TYPE FILE FILES
-    "/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/libcuckoo-c/cuckoo_table_template.h"
-    "/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/libcuckoo-c/cuckoo_table_template.cc"
+file(INSTALL DESTINATION "/Users/poojanilangekar/Documents/ACF/libcuckoo/install/include/libcuckoo-c" TYPE FILE FILES
+    "/Users/poojanilangekar/Documents/ACF/libcuckoo/libcuckoo-c/cuckoo_table_template.h"
+    "/Users/poojanilangekar/Documents/ACF/libcuckoo/libcuckoo-c/cuckoo_table_template.cc"
     )
 endif()
 

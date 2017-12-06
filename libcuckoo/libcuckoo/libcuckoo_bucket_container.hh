@@ -78,8 +78,8 @@ public:
     }
     mapped_type &mapped(size_type ind) { return storage_kvpair(ind).second; }
 
-    partial_t partial(size_type ind) const { return partials_[ind]; }
-    partial_t &partial(size_type ind) { return partials_[ind]; }
+    partial_t partial(size_type ind) const { return 0; }
+    partial_t &partial(size_type ind) { partial_t p; return p; }
 
     bool occupied(size_type ind) const { return occupied_[ind]; }
     bool &occupied(size_type ind) { return occupied_[ind]; }
@@ -102,7 +102,7 @@ public:
                                              alignof(storage_value_type)>::type,
                SLOT_PER_BUCKET>
         values_;
-    std::array<partial_t, SLOT_PER_BUCKET> partials_;
+    //std::array<partial_t, SLOT_PER_BUCKET> partials_;
     std::array<bool, SLOT_PER_BUCKET> occupied_;
   };
 
@@ -203,8 +203,9 @@ public:
   void setKV(size_type ind, size_type slot, partial_t p, K &&k,
              Args &&... args) {
     bucket &b = buckets_[ind];
+    (void) p;
     // assert(!b.occupied(slot));
-    b.partial(slot) = p;
+    //b.partial(slot) = p;
     traits_::construct(allocator_, std::addressof(b.storage_kvpair(slot)),
                        std::piecewise_construct,
                        std::forward_as_tuple(std::forward<K>(k)),
@@ -295,13 +296,17 @@ private:
   // `true` here refers to whether or not we should move
   void move_or_copy(size_type dst_ind, size_type dst_slot, bucket &src,
                     size_type src_slot, std::true_type) {
-    setKV(dst_ind, dst_slot, src.partial(src_slot), src.movable_key(src_slot),
+    //setKV(dst_ind, dst_slot, src.partial(src_slot), src.movable_key(src_slot),
+    //      std::move(src.mapped(src_slot)));
+    setKV(dst_ind, dst_slot, 0, src.movable_key(src_slot),
           std::move(src.mapped(src_slot)));
   }
 
   void move_or_copy(size_type dst_ind, size_type dst_slot, bucket &src,
                     size_type src_slot, std::false_type) {
-    setKV(dst_ind, dst_slot, src.partial(src_slot), src.key(src_slot),
+    //setKV(dst_ind, dst_slot, src.partial(src_slot), src.key(src_slot),
+    //      src.mapped(src_slot));
+    setKV(dst_ind, dst_slot, 0, src.key(src_slot),
           src.mapped(src_slot));
   }
 
