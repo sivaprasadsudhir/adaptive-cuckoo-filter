@@ -676,11 +676,11 @@ public:
   void read_from_bucket_at_slot(const size_type i,
                                 const size_type b_ind,
                                 key_value_type &key_value) const{
-    const bucket b = buckets_[i];
+    // const bucket b = buckets_[i];
     // if(!b.occupied(b_ind)) {
     //   assert(false);
     // }
-    key_value = b.kvpair(b_ind);
+    key_value = buckets_[i].kvpair(b_ind);
     // std::cout << "Read " << i << " " << b_ind << " " << key_value.first << " " << key_value.second << std::endl;
   }
 
