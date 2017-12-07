@@ -26,24 +26,28 @@ class SingleTable {
 
   struct Bucket {
     char bits_[kBytesPerBucket];
-    std::atomic_uint16_t counter;
+    //std::atomic_uint16_t counter;
   } __attribute__((__packed__));
 
   // using a pointer adds one more indirection
   Bucket *buckets_;
+  std::atomic_uint16_t *counters_; 
   size_t num_buckets_;
 
  public:
   explicit SingleTable(const size_t num) : num_buckets_(num) {
     // std::cout << "Num of buckets: " << num_buckets_ << std::endl;
-    buckets_ = new Bucket[num_buckets_];
-    // buckets_ = new Bucket[num_buckets_ + kPaddingBuckets];
-    memset(buckets_, 0, (kBytesPerBucket + 2) * (num_buckets_));
-    // memset(buckets_, 0, kBytesPerBucket * (num_buckets_ + kPaddingBuckets));
+    //buckets_ = new Bucket[num_buckets_];
+    buckets_ = new Bucket[num_buckets_ + kPaddingBuckets];
+    counters_ = new std::atomic_uint16_t[num_buckets_];
+    //memset(buckets_, 0, (kBytesPerBucket + 2) * (num_buckets_));
+    memset(buckets_, 0, kBytesPerBucket * (num_buckets_ + kPaddingBuckets));
+    memset(counters_, 0, 2*(num_buckets_));
   }
 
   ~SingleTable() { 
     delete[] buckets_;
+    delete[] counters_;
   }
 
   size_t NumBuckets() const {
@@ -227,7 +231,8 @@ class SingleTable {
 
   inline uint16_t read_counter(const size_t i) {
     uint16_t counter;
-    counter = std::atomic_load_explicit(&buckets_[i].counter, std::memory_order_acquire);
+    //counter = std::atomic_load_explicit(&buckets_[i].counter, std::memory_order_acquire);
+    counter = std::atomic_load_explicit(counters_[i], std::memory_order_acquire);
     return counter;
   }
 
@@ -252,12 +257,14 @@ class SingleTable {
   inline bool counter_changed(const size_t i, uint16_t c) {
     uint16_t counter;
     std::atomic_thread_fence(std::memory_order_acquire);
-    counter = std::atomic_load_explicit(&buckets_[i].counter, std::memory_order_acquire);
+    //counter = std::atomic_load_explicit(&buckets_[i].counter, std::memory_order_acquire);
+    counter = std::atomic_load_explicit(&counters_[i], std::memory_order_acquire);
     return (counter != c);
   }
 
   inline void increment_even(const size_t i) {
-    buckets_[i].counter++;
+    //buckets_[i].counter++;
+    counters_[i]++;
     return;
   }
 
@@ -267,9 +274,8 @@ class SingleTable {
     do {
       counter = read_even_counter(i);
       new_counter = counter + 1;
-    } while(!std::atomic_compare_exchange_strong(&buckets_[i].counter, &counter, new_counter));
-    // } while(!(buckets_[i].counter).compare_exchange_strong(&counter, counter + 1,
-                          // std::memory_order_acquire, std::memory_order_relaxed));
+    } while(!std::atomic_compare_exchange_strong(&counters_[i], &counter, new_counter));
+    //while(!std::atomic_compare_exchange_strong(&buckets_[i].counter, &counter, new_counter));
     return;
   }
 };
