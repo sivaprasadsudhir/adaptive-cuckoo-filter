@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
   query_size = 3;
   uint64_t query[] = {0, 0, 100000000};
   
-  s_size = 100000;
+  s_size = 10000;
   // std::vector<int> s(s_size);
   // std::vector<int> a(s_size * 100);
 
@@ -70,13 +70,22 @@ int main(int argc, char **argv) {
       int false_positives = 0;
 
       for(uint64_t k = 0; k < query[j]; k++) {
-        int key = offset + rand() % a_size;
+        // int key = offset + rand() % a_size;
+        // uint64_t val;
+
+        // // int found_in_filter = table.findinfilter(key);
+        // int found = table.find(key, val);
+
+        // assert(!found);
+
+        int key = rand() % s_size;
         uint64_t val;
 
         // int found_in_filter = table.findinfilter(key);
         int found = table.find(key, val);
 
-        assert(!found);
+        assert(found);
+        assert(val == 2 * key);
 
         // false_positives += found_in_filter && !found;
         

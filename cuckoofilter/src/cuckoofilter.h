@@ -181,14 +181,14 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::find(
   }
 
   // TODO[Siva]: Decide what needs to be stores in false_positives
-  // std::vector< std::pair<size_t, size_t> > false_positives_1, false_positives_2;
+  std::vector< std::pair<size_t, size_t> > false_positives_1, false_positives_2;
 
   // check in i1
   uint16_t c1, c2;
   
   do {
     c1 = table_->read_even_counter(i1);
-    // false_positives_1.clear();
+    false_positives_1.clear();
 
     // int bla = 0;
 
@@ -207,7 +207,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::find(
         else {
           // std::cout << "False Positives" << std::endl;
           // std::cout << "But keys didn't match " << key_value.first << " " << key << std::endl;
-          // false_positives_1.push_back(std::make_pair(i1, slot));
+          false_positives_1.push_back(std::make_pair(i1, slot));
         }
       }
     }
@@ -220,7 +220,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::find(
   // check in i2
   do {
     c2 = table_->read_even_counter(i2);
-    // false_positives_2.clear();
+    false_positives_2.clear();
     for (int slot = 0; slot < 4; slot++) {
       // std::cout << "Checking find for key: " << key << " in bucket " << i2 << "," << slot << " and got " << table_->ReadTag(i2, slot) << ", expected " << tag[slot] << std::endl;
 
@@ -237,7 +237,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::find(
         else {
           // std::cout << "False Positives" << std::endl;
           // std::cout << "But keys didn't match " << key_value.first << " " << key << std::endl;
-          // false_positives_2.push_back(std::make_pair(i2, slot));
+          false_positives_2.push_back(std::make_pair(i2, slot));
         }
       }
     }
@@ -246,31 +246,31 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::find(
     //    std::cout << "ALERT" << std::endl;
   } while(table_->counter_changed(i2, c2));
 
-  // if(false_positives_1.size() != 0) {
-  //   // if(false_positives_1.size() > 1) {
-  //   //   std::cout << "ERROR" << std::endl;
-  //     // exit(1);
-  //   // }
-  //   // table_->increment_odd(i1);
-  //   for(unsigned int i = 0; i < false_positives_1.size(); i++) {
-  //     // std::cout << "Called remove_false_positives " << std::endl;
-  //     remove_false_positives(false_positives_1[i].first, false_positives_1[i].second);
-  //   }
-  //   // table_->increment_even(i1);
-  // }
+  if(false_positives_1.size() != 0) {
+    // if(false_positives_1.size() > 1) {
+    //   std::cout << "ERROR" << std::endl;
+      // exit(1);
+    // }
+    table_->increment_odd(i1);
+    for(unsigned int i = 0; i < false_positives_1.size(); i++) {
+      // std::cout << "Called remove_false_positives " << std::endl;
+      remove_false_positives(false_positives_1[i].first, false_positives_1[i].second);
+    }
+    table_->increment_even(i1);
+  }
 
-  // if(false_positives_2.size() != 0) {
-  //   // if(false_positives_2.size() > 1) {
-  //   //   std::cout << "ERROR" << std::endl;
-  //     // exit(1);
-  //   // }
-  //   // table_->increment_odd(i2);
-  //   for(unsigned int i = 0; i < false_positives_2.size(); i++) {
-  //     // std::cout << "Called remove_false_positives " << std::endl;
-  //     remove_false_positives(false_positives_2[i].first, false_positives_2[i].second);
-  //   }
-  //   // table_->increment_even(i2);
-  // }
+  if(false_positives_2.size() != 0) {
+    // if(false_positives_2.size() > 1) {
+    //   std::cout << "ERROR" << std::endl;
+      // exit(1);
+    // }
+    table_->increment_odd(i2);
+    for(unsigned int i = 0; i < false_positives_2.size(); i++) {
+      // std::cout << "Called remove_false_positives " << std::endl;
+      remove_false_positives(false_positives_2[i].first, false_positives_2[i].second);
+    }
+    table_->increment_even(i2);
+  }
 
   return found;
 

@@ -232,7 +232,7 @@ class SingleTable {
   inline uint16_t read_counter(const size_t i) {
     uint16_t counter;
     //counter = std::atomic_load_explicit(&buckets_[i].counter, std::memory_order_acquire);
-    counter = std::atomic_load_explicit(counters_[i], std::memory_order_acquire);
+    counter = std::atomic_load_explicit(&counters_[i], std::memory_order_acquire);
     return counter;
   }
 

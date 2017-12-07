@@ -9,11 +9,12 @@
 
 using cuckoofilter::CuckooFilter;
 
+int total_items = 100000;
+CuckooFilter<int, 12> filteredhash(total_items);
+
 void run_test(int n) {
-  int total_items = 10000000;
   int start = n * total_items * 10;
 
-  CuckooFilter<int, 12> filteredhash(total_items);
 
   std::cout << "Started inserting: " << n << std::endl;
 
@@ -49,6 +50,7 @@ void run_test(int n) {
   for (int i = start + total_items; i < start + 10 * total_items; i++) {
     uint64_t val;
     assert(!filteredhash.find(i, val));
+    // std::cout << i << std::endl;
   }
     // std::cout << "Blu: " << std::endl;
   std::cout << "Contains of non existent things done: " << n << std::endl;

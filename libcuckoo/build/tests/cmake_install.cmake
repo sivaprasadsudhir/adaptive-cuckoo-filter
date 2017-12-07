@@ -1,8 +1,8 @@
-# Install script for directory: /Users/poojanilangekar/Documents/ACF/libcuckoo/tests
+# Install script for directory: /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/tests
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/Users/poojanilangekar/Documents/ACF/libcuckoo/install")
+  set(CMAKE_INSTALL_PREFIX "/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/install")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -29,11 +29,11 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/Users/poojanilangekar/Documents/ACF/libcuckoo/build/tests/pcg/cmake_install.cmake")
-  include("/Users/poojanilangekar/Documents/ACF/libcuckoo/build/tests/Catch/cmake_install.cmake")
-  include("/Users/poojanilangekar/Documents/ACF/libcuckoo/build/tests/unit-tests/cmake_install.cmake")
-  include("/Users/poojanilangekar/Documents/ACF/libcuckoo/build/tests/stress-tests/cmake_install.cmake")
-  include("/Users/poojanilangekar/Documents/ACF/libcuckoo/build/tests/universal-benchmark/cmake_install.cmake")
+  include("/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build/tests/pcg/cmake_install.cmake")
+  include("/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build/tests/Catch/cmake_install.cmake")
+  include("/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build/tests/unit-tests/cmake_install.cmake")
+  include("/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build/tests/stress-tests/cmake_install.cmake")
+  include("/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build/tests/universal-benchmark/cmake_install.cmake")
 
 endif()
 

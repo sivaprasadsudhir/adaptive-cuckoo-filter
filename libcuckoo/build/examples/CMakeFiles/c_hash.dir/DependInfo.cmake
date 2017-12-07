@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
-  "/Users/poojanilangekar/Documents/ACF/libcuckoo/examples/c_hash.c" "/Users/poojanilangekar/Documents/ACF/libcuckoo/build/examples/CMakeFiles/c_hash.dir/c_hash.c.o"
+  "/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/examples/c_hash.c" "/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build/examples/CMakeFiles/c_hash.dir/c_hash.c.o"
   )
 set(CMAKE_C_COMPILER_ID "AppleClang")
 
@@ -15,8 +15,8 @@ set(CMAKE_C_TARGET_INCLUDE_PATH
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
-  "/Users/poojanilangekar/Documents/ACF/libcuckoo/build/examples/CMakeFiles/int_str_table.dir/DependInfo.cmake"
-  "/Users/poojanilangekar/Documents/ACF/libcuckoo/build/examples/CMakeFiles/blob_blob_table.dir/DependInfo.cmake"
+  "/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build/examples/CMakeFiles/int_str_table.dir/DependInfo.cmake"
+  "/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build/examples/CMakeFiles/blob_blob_table.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

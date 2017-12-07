@@ -1,8 +1,8 @@
-# Install script for directory: /Users/poojanilangekar/Documents/ACF/libcuckoo/tests/stress-tests
+# Install script for directory: /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/tests/stress-tests
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/Users/poojanilangekar/Documents/ACF/libcuckoo/install")
+  set(CMAKE_INSTALL_PREFIX "/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/install")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 

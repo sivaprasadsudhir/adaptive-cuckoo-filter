@@ -48,24 +48,13 @@ RM = /usr/local/Cellar/cmake/3.7.2/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/poojanilangekar/Documents/ACF/libcuckoo
+CMAKE_SOURCE_DIR = /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/poojanilangekar/Documents/ACF/libcuckoo/build
+CMAKE_BINARY_DIR = /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build
 
 #=============================================================================
 # Targets provided globally by CMake.
-
-# Special rule for the target install/strip
-install/strip: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
-	/usr/local/Cellar/cmake/3.7.2/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
-.PHONY : install/strip
-
-# Special rule for the target install/strip
-install/strip/fast: install/strip
-
-.PHONY : install/strip/fast
 
 # Special rule for the target install
 install: preinstall
@@ -135,14 +124,14 @@ test/fast: test
 
 # The main all target
 all: cmake_check_build_system
-	cd /Users/poojanilangekar/Documents/ACF/libcuckoo/build && $(CMAKE_COMMAND) -E cmake_progress_start /Users/poojanilangekar/Documents/ACF/libcuckoo/build/CMakeFiles /Users/poojanilangekar/Documents/ACF/libcuckoo/build/tests/universal-benchmark/CMakeFiles/progress.marks
-	cd /Users/poojanilangekar/Documents/ACF/libcuckoo/build && $(MAKE) -f CMakeFiles/Makefile2 tests/universal-benchmark/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/poojanilangekar/Documents/ACF/libcuckoo/build/CMakeFiles 0
+	cd /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build && $(CMAKE_COMMAND) -E cmake_progress_start /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build/CMakeFiles /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build/tests/universal-benchmark/CMakeFiles/progress.marks
+	cd /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build && $(MAKE) -f CMakeFiles/Makefile2 tests/universal-benchmark/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /Users/poojanilangekar/Documents/ACF/libcuckoo/build && $(MAKE) -f CMakeFiles/Makefile2 tests/universal-benchmark/clean
+	cd /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build && $(MAKE) -f CMakeFiles/Makefile2 tests/universal-benchmark/clean
 .PHONY : clean
 
 # The main clean target
@@ -152,22 +141,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /Users/poojanilangekar/Documents/ACF/libcuckoo/build && $(MAKE) -f CMakeFiles/Makefile2 tests/universal-benchmark/preinstall
+	cd /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build && $(MAKE) -f CMakeFiles/Makefile2 tests/universal-benchmark/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /Users/poojanilangekar/Documents/ACF/libcuckoo/build && $(MAKE) -f CMakeFiles/Makefile2 tests/universal-benchmark/preinstall
+	cd /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build && $(MAKE) -f CMakeFiles/Makefile2 tests/universal-benchmark/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /Users/poojanilangekar/Documents/ACF/libcuckoo/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/rule:
-	cd /Users/poojanilangekar/Documents/ACF/libcuckoo/build && $(MAKE) -f CMakeFiles/Makefile2 tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/rule
+	cd /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build && $(MAKE) -f CMakeFiles/Makefile2 tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/rule
 .PHONY : tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/rule
 
 # Convenience name for target.
@@ -177,7 +166,7 @@ universal_benchmark: tests/universal-benchmark/CMakeFiles/universal_benchmark.di
 
 # fast build rule for target.
 universal_benchmark/fast:
-	cd /Users/poojanilangekar/Documents/ACF/libcuckoo/build && $(MAKE) -f tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/build.make tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/build
+	cd /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build && $(MAKE) -f tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/build.make tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/build
 .PHONY : universal_benchmark/fast
 
 universal_benchmark.o: universal_benchmark.cc.o
@@ -186,7 +175,7 @@ universal_benchmark.o: universal_benchmark.cc.o
 
 # target to build an object file
 universal_benchmark.cc.o:
-	cd /Users/poojanilangekar/Documents/ACF/libcuckoo/build && $(MAKE) -f tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/build.make tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/universal_benchmark.cc.o
+	cd /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build && $(MAKE) -f tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/build.make tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/universal_benchmark.cc.o
 .PHONY : universal_benchmark.cc.o
 
 universal_benchmark.i: universal_benchmark.cc.i
@@ -195,7 +184,7 @@ universal_benchmark.i: universal_benchmark.cc.i
 
 # target to preprocess a source file
 universal_benchmark.cc.i:
-	cd /Users/poojanilangekar/Documents/ACF/libcuckoo/build && $(MAKE) -f tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/build.make tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/universal_benchmark.cc.i
+	cd /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build && $(MAKE) -f tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/build.make tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/universal_benchmark.cc.i
 .PHONY : universal_benchmark.cc.i
 
 universal_benchmark.s: universal_benchmark.cc.s
@@ -204,7 +193,7 @@ universal_benchmark.s: universal_benchmark.cc.s
 
 # target to generate assembly for a file
 universal_benchmark.cc.s:
-	cd /Users/poojanilangekar/Documents/ACF/libcuckoo/build && $(MAKE) -f tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/build.make tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/universal_benchmark.cc.s
+	cd /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build && $(MAKE) -f tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/build.make tests/universal-benchmark/CMakeFiles/universal_benchmark.dir/universal_benchmark.cc.s
 .PHONY : universal_benchmark.cc.s
 
 # Help Target
@@ -213,7 +202,6 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... install/strip"
 	@echo "... install"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
@@ -235,6 +223,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /Users/poojanilangekar/Documents/ACF/libcuckoo/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

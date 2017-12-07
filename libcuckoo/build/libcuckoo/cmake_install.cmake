@@ -1,8 +1,8 @@
-# Install script for directory: /Users/poojanilangekar/Documents/ACF/libcuckoo/libcuckoo
+# Install script for directory: /Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/libcuckoo
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/Users/poojanilangekar/Documents/ACF/libcuckoo/install")
+  set(CMAKE_INSTALL_PREFIX "/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/install")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -29,18 +29,18 @@ endif()
 
 if("${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/Users/poojanilangekar/Documents/ACF/libcuckoo/install/include/libcuckoo/cuckoohash_config.hh;/Users/poojanilangekar/Documents/ACF/libcuckoo/install/include/libcuckoo/cuckoohash_map.hh;/Users/poojanilangekar/Documents/ACF/libcuckoo/install/include/libcuckoo/cuckoohash_util.hh;/Users/poojanilangekar/Documents/ACF/libcuckoo/install/include/libcuckoo/libcuckoo_bucket_container.hh")
+   "/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/install/include/libcuckoo/cuckoohash_config.hh;/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/install/include/libcuckoo/cuckoohash_map.hh;/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/install/include/libcuckoo/cuckoohash_util.hh;/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/install/include/libcuckoo/libcuckoo_bucket_container.hh")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-file(INSTALL DESTINATION "/Users/poojanilangekar/Documents/ACF/libcuckoo/install/include/libcuckoo" TYPE FILE FILES
-    "/Users/poojanilangekar/Documents/ACF/libcuckoo/libcuckoo/cuckoohash_config.hh"
-    "/Users/poojanilangekar/Documents/ACF/libcuckoo/libcuckoo/cuckoohash_map.hh"
-    "/Users/poojanilangekar/Documents/ACF/libcuckoo/libcuckoo/cuckoohash_util.hh"
-    "/Users/poojanilangekar/Documents/ACF/libcuckoo/libcuckoo/libcuckoo_bucket_container.hh"
+file(INSTALL DESTINATION "/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/install/include/libcuckoo" TYPE FILE FILES
+    "/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/libcuckoo/cuckoohash_config.hh"
+    "/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/libcuckoo/cuckoohash_map.hh"
+    "/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/libcuckoo/cuckoohash_util.hh"
+    "/Users/sivaprasad/Desktop/Academics/15712/project/ACF/libcuckoo/libcuckoo/libcuckoo_bucket_container.hh"
     )
 endif()
 

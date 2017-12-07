@@ -20,13 +20,16 @@ ALIB = libcuckoofilter.a
 
 TEST = test
 
-all: $(TEST)
+all: $(TEST) old_test
 
 clean:
 	rm -f $(TEST) */*.o
 
 test: example/test.o $(LIBOBJECTS) 
 	$(CC) example/test.o $(LIBOBJECTS) $(LDFLAGS) -o $@
+
+old_test: example/old_test.o $(LIBOBJECTS) 
+	$(CC) example/old_test.o $(LIBOBJECTS) $(LDFLAGS) -o $@
 
 benchmark: example/benchmark.o $(LIBOBJECTS) 
 	$(CC) example/benchmark.o $(LIBOBJECTS) $(LDFLAGS) -o $@
