@@ -71,10 +71,15 @@ class SingleTable {
     return ss.str();
   }
 
+  inline uint64_t ReadBucket(const size_t i) {
+    uint64_t bucket = *((uint64_t *) buckets_[i].bits_);
+    return bucket;
+  }
+
   // read tag from pos(i,j)
-  inline uint32_t ReadTag(const size_t i, const size_t j) const {
+  inline uint16_t ReadTag(const size_t i, const size_t j) const {
     const char *p = buckets_[i].bits_;
-    uint32_t tag;
+    uint16_t tag;
     /* following code only works for little-endian */
     if (bits_per_tag == 2) {
       tag = *((uint8_t *)p) >> (j * 2);
@@ -97,10 +102,13 @@ class SingleTable {
   }
 
   // write tag to pos(i,j)
-  inline void WriteTag(const size_t i, const size_t j, const uint32_t t) {
+  inline void WriteTag(const size_t i, const size_t j, const uint16_t t) {
     // std::cout << "WriteTag " << i << " " << j << " " << t << std::endl;
     char *p = buckets_[i].bits_;
-    uint32_t tag = t & kTagMask;
+
+    // std::cout << "WRITING: " << std::hex << *(uint64_t*)p << std::endl;
+
+    uint16_t tag = t & kTagMask;
     /* following code only works for little-endian */
     if (bits_per_tag == 2) {
       *((uint8_t *)p) |= tag << (2 * j);
@@ -129,6 +137,8 @@ class SingleTable {
     } else if (bits_per_tag == 32) {
       ((uint32_t *)p)[j] = tag;
     }
+
+    // std::cout << "WROTE: " << std::hex << *(uint64_t*)p << std::endl;
   }
 
   inline bool FindTagInBuckets(const size_t i1, const size_t i2,
@@ -197,7 +207,7 @@ class SingleTable {
     return false;
   }
 
-  inline bool InsertTagToBucket(const size_t i, const uint32_t tag[4],
+  inline bool InsertTagToBucket(const size_t i, const uint16_t tag[4],
                                 const bool kickout, size_t &slot) {
   // std::cout << "Here2.1" << std::endl;
     // uint32_t oldtag;

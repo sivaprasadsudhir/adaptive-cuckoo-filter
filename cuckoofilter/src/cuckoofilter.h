@@ -6,6 +6,7 @@
 #include <libcuckoo/cuckoohash_map.hh>
 #include <mutex>
 #include <atomic>
+#include <xxhash.h>
 
 #include "debug.h"
 #include "hashutil.h"
@@ -63,32 +64,71 @@ class CuckooFilter {
     // return hv & (table_->NumBuckets() - 1);
   // }
 
-  inline void TagHash(uint64_t hv, uint32_t tag[4]) const
+  inline void TagHash(uint64_t hv, uint16_t tag[4]) const
   {
+    hv >>= 16;
     for (int i = 0; i < 4; i++) {
-      tag[i] = hv & ((1ULL << bits_per_item) - 1);
-      tag[i] += (tag[i] == 0);
+      tag[3-i] = hv & ((1ULL << bits_per_item) - 1);
+      tag[3-i] += (tag[3-i] == 0);
       hv = hv >> bits_per_item;
     }
   }
 
   inline void GenerateIndexTagHash(const ItemType& key, uint32_t* index1,
-            uint32_t* index2, uint32_t tag[4], uint64_t &tag_hash) const
+            uint32_t* index2, uint16_t* tag, uint64_t &tag_hash) const
   {
+    char *buf = (char *) &key;
     *index2 = *index1 = 0;
-    HashUtil::BobHash((&key), sizeof(ItemType), index1, index2);
-    *index1 = *index1 & (table_->NumBuckets() - 1);
-    *index2 = *index2 & (table_->NumBuckets() - 1);
+
+    uint64_t hash = XXH64(buf, sizeof(ItemType), 0);
+    *index1 = ((uint32_t)hash) & (table_->NumBuckets() - 1);
+    *index2 = ((uint32_t)(hash >> 32)) & (table_->NumBuckets() - 1);
+
+    // std::cout << "HERE" << *index1 << std::endl;
+    // std::cout << "HERE" << *index2 << std::endl;
+
+    // HashUtil::BobHash((&key), sizeof(ItemType), index1, index2);
+    // *index1 = *index1 & (table_->NumBuckets() - 1);
+    // *index2 = *index2 & (table_->NumBuckets() - 1);
     tag_hash = hasher_(key);
-    TagHash(tag_hash, tag);
-    // if(key == 0 || key == 1) {
-      // std::cout << tag
-      // std::cout << key << " ";
-      // for(int i = 0; i < 4; i++)
-        // std::cout << tag[i] << " ";
-      // std::cout << *index1 << " " << *index2;
-      // std::cout << std::endl;
+
+    // (uint32_t)(index ^ (tag * 0x5bd1e995))
+
+    // uint16_t temp_tag[4];
+    // TagHash(tag_hash, temp_tag);
+
+    uint64_t mask = ~(0xffff);
+    tag_hash &= mask;
+
+    uint64_t part_mask = 0xfff << 16;
+
+    // std::cout << std::hex << tag_hash << "\n";
+    // 4
+    tag_hash += ((uint64_t)!(tag_hash & (part_mask))) << 16;
+    tag[0] = (tag_hash >> 16) & 0xfff;
+    // 3
+    part_mask <<= 12;
+    tag_hash += ((uint64_t)!(tag_hash & (part_mask))) << (16 + 12);
+    tag[1] = (tag_hash >> (16 + 12)) & 0xfff;
+    // 2
+    part_mask <<= 12;
+    tag_hash += ((uint64_t)!(tag_hash & (part_mask))) << (16 + 12 + 12);
+    tag[2] = (tag_hash >> (16 + 12 + 12)) & 0xfff;
+    // 1
+    part_mask <<= 12;
+    tag_hash += ((uint64_t)!(tag_hash & (part_mask))) << (16 + 12 + 12 + 12);
+    tag[3] = (tag_hash >> (16 + 12 + 12 + 12)) & 0xfff;
+    // 0
+
+    // for(int i = 0; i < 4; i++) {
+    //   std::cout << std::hex << tag[i] << " ";
+    //   std::cout << std::hex << temp_tag[i] << std::endl;
     // }
+
+    // for(int i = 0; i < 4; i++) {
+    //   assert(tag[i] == temp_tag[i]);
+    // }
+
   }
 
   // load factor is the fraction of occupancy
@@ -97,7 +137,7 @@ class CuckooFilter {
   double BitsPerItem() const { return 8.0 * table_->SizeInBytes() / Size(); }
 
  public:
-  explicit CuckooFilter(const size_t max_num_keys) : hashmap(), num_items_(0), victim_(), hasher_()
+  explicit CuckooFilter(const size_t max_num_keys) : hashmap((1U << 16)*4), num_items_(0), victim_(), hasher_()
   {
     size_t assoc = 4;
     size_t max_num_keys_1 = (1U << 16) * 2;
@@ -131,7 +171,7 @@ class CuckooFilter {
   bool findinfilter(const ItemType &key);
   bool contains(const ItemType &key);
   bool insert(const ItemType &key, const uint64_t &val);
-  bool insert_impl(const ItemType &key, const uint64_t &val, size_t i, uint32_t tag[4], uint64_t taghash, bool has_lock);
+  bool insert_impl(const ItemType &key, const uint64_t &val, size_t i, uint16_t tag[4], uint64_t taghash, bool has_lock);
   bool erase(const ItemType &key);
   void remove_false_positives(size_t index, size_t slot);
 
@@ -163,115 +203,145 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::find(
 
   bool found = false;
   uint32_t i1, i2;
-  uint32_t tag[4];
+  uint16_t tag[4];
   uint64_t tag_hash;
 
   GenerateIndexTagHash(key, &i1, &i2, tag, tag_hash);
+  return false;
 
-  if(atomic_load(&victim_.used)) {
-    write_lock.lock();
-    found = victim_.used && (key == victim_.key) &&
-          (i1 == victim_.index || i2 == victim_.index);
-    if (found) {
-      val = victim_.val;
-      write_lock.unlock();
-      return true;
-    }
-    write_lock.unlock();
-  }
+  // if(atomic_load(&victim_.used)) {
+  //   write_lock.lock();
+  //   found = victim_.used && (key == victim_.key) &&
+  //         (i1 == victim_.index || i2 == victim_.index);
+  //   if (found) {
+  //     val = victim_.val;
+  //     write_lock.unlock();
+  //     return true;
+  //   }
+  //   write_lock.unlock();
+  // }
 
   // TODO[Siva]: Decide what needs to be stores in false_positives
-  std::vector< std::pair<size_t, size_t> > false_positives_1, false_positives_2;
+  // std::vector< std::pair<size_t, size_t> > false_positives_1, false_positives_2;
 
   // check in i1
-  uint16_t c1, c2;
+  // uint16_t c1, c2;
+
+  // int bla = 0;
   
-  do {
-    c1 = table_->read_even_counter(i1);
-    false_positives_1.clear();
+  // do {
+    // c1 = table_->read_even_counter(i1);
 
-    // int bla = 0;
+    // false_positives_1.clear();
+    uint64_t bucket = table_->ReadBucket(i1);
+    uint64_t match = ~(bucket ^ (tag_hash >> 16));
 
-    for (int slot = 0; slot < 4; slot++) {
-      // std::cout << "Checking find for key: " << key << " in bucket " << i1 << "," << slot << " and got " << table_->ReadTag(i1, slot) << ", expected " << tag[slot] << std::endl;
-      if(tag[slot] == table_->ReadTag(i1, slot)) {
+    // std::cout << "BUCKET:\t" << std::hex << bucket << std::endl;
+    // std::cout << "TAG:\t" << std::hex << tag_hash << std::endl;
+    // std::cout << "MATCH:\t" << std::hex << match << std::endl;
+    // std::cout << "BUCKET" << std::hex << match << std::endl;
+
+    uint16_t mask = 0xfff;
+
+    int slot = 0;
+    for(int slot = 0; slot < 4; slot++) {
+      // std::cout << "HERE: " << key << " " << slot << std::endl;
+      // std::cout << "MATCH:\t" << std::hex << (match&mask) + 1 << std::endl;
+
+      if(((match & mask) + 1) & (mask + 1)) {
+        // std::cout << "FOUND A MATCH" << std::endl;
         std::pair<ItemType, uint64_t> key_value;
         hashmap.read_from_bucket_at_slot(i1, slot, key_value);
-        // bla++;
-        // std::cout << "Finger print matched and hashmap gave " << key_value.first << " " << key_value.second << std::endl;
+
         if(key == key_value.first) {
           val = key_value.second;
           found = true;
-          // goto find_false_positive_removal;
-        }
-        else {
-          // std::cout << "False Positives" << std::endl;
-          // std::cout << "But keys didn't match " << key_value.first << " " << key << std::endl;
-          false_positives_1.push_back(std::make_pair(i1, slot));
+          // goto false_positives_removal;
+        } else {
+          // false_positives_1.push_back(std::make_pair(i1, slot));
         }
       }
+      match >>= 12;
     }
-  } while(table_->counter_changed(i1, c1));
+
+  // } while(table_->counter_changed(i1, c1));
 
   // if(bla > 1)
   //   std::cout << "ALERT" << std::endl;
 
   // bla = 0;
   // check in i2
-  do {
-    c2 = table_->read_even_counter(i2);
-    false_positives_2.clear();
-    for (int slot = 0; slot < 4; slot++) {
-      // std::cout << "Checking find for key: " << key << " in bucket " << i2 << "," << slot << " and got " << table_->ReadTag(i2, slot) << ", expected " << tag[slot] << std::endl;
+  // do {
+    // c2 = table_->read_even_counter(i2);
 
-      if(tag[slot] == table_->ReadTag(i2, slot)) {
+    // false_positives_2.clear();
+    // uint64_t bucket = table_->ReadBucket(i2);
+    // uint64_t match = ~(bucket ^ (tag_hash >> 16));
+    // uint16_t mask = 0xfff;
+
+    bucket = table_->ReadBucket(i2);
+    match = ~(bucket ^ (tag_hash >> 16));
+    mask = 0xfff;
+
+    // std::cout << "BUCKET2:\t" << std::hex << bucket << std::endl;
+    // std::cout << "TAG2:\t" << std::hex << tag_hash << std::endl;
+    // std::cout << "MATCH2:\t" << std::hex << match << std::endl;
+    
+    for(int slot = 0; slot < 4; slot++) {
+      // std::cout << "MATCH2:\t" << std::hex << (match&mask) + 1 << std::endl;
+
+      if(((match & mask) + 1) & (mask + 1)) {
+        // std::cout << "FOUND A MATCH" << std::endl;
         std::pair<ItemType, uint64_t> key_value;
         hashmap.read_from_bucket_at_slot(i2, slot, key_value);
-        // bla++;
-        // std::cout << "Finger print matched and hashmap gave " << key_value.first << " " << key_value.second << std::endl;
+
         if(key == key_value.first) {
           val = key_value.second;
           found = true;
-          // goto find_false_positive_removal;
-        }
-        else {
-          // std::cout << "False Positives" << std::endl;
-          // std::cout << "But keys didn't match " << key_value.first << " " << key << std::endl;
-          false_positives_2.push_back(std::make_pair(i2, slot));
+          // goto false_positives_removal;
+        } else {
+          // false_positives_2.push_back(std::make_pair(i2, slot));
         }
       }
+      match >>= 12;
     }
 
-    //  if(bla > 1)
-    //    std::cout << "ALERT" << std::endl;
-  } while(table_->counter_changed(i2, c2));
+  // } while(table_->counter_changed(i2, c2));
 
-  if(false_positives_1.size() != 0) {
-    // if(false_positives_1.size() > 1) {
-    //   std::cout << "ERROR" << std::endl;
-      // exit(1);
-    // }
-    table_->increment_odd(i1);
-    for(unsigned int i = 0; i < false_positives_1.size(); i++) {
-      // std::cout << "Called remove_false_positives " << std::endl;
-      remove_false_positives(false_positives_1[i].first, false_positives_1[i].second);
-    }
-    table_->increment_even(i1);
-  }
+  // if(bla > 1)
+  //   std::cout << "ALERT" << std::endl;
 
-  if(false_positives_2.size() != 0) {
-    // if(false_positives_2.size() > 1) {
-    //   std::cout << "ERROR" << std::endl;
-      // exit(1);
-    // }
-    table_->increment_odd(i2);
-    for(unsigned int i = 0; i < false_positives_2.size(); i++) {
-      // std::cout << "Called remove_false_positives " << std::endl;
-      remove_false_positives(false_positives_2[i].first, false_positives_2[i].second);
-    }
-    table_->increment_even(i2);
-  }
+// false_positives_removal:
 
+  // if(false_positives_1.size() != 0) {
+  //   std::cout << "False Positives!!\n";
+  //   // if(false_positives_1.size() > 1) {
+  //   //   std::cout << "ERROR" << std::endl;
+  //     // exit(1);
+  //   // }
+  //   table_->increment_odd(i1);
+  //   for(unsigned int i = 0; i < false_positives_1.size(); i++) {
+  //     // std::cout << "Called remove_false_positives " << std::endl;
+  //     remove_false_positives(false_positives_1[i].first, false_positives_1[i].second);
+  //   }
+  //   table_->increment_even(i1);
+  // }
+
+  // if(false_positives_2.size() != 0) {
+  //   std::cout << "False Positives!!\n";
+  //   // if(false_positives_2.size() > 1) {
+  //   //   std::cout << "ERROR" << std::endl;
+  //     // exit(1);
+  //   // }
+  //   table_->increment_odd(i2);
+  //   for(unsigned int i = 0; i < false_positives_2.size(); i++) {
+  //     // std::cout << "Called remove_false_positives " << std::endl;
+  //     remove_false_positives(false_positives_2[i].first, false_positives_2[i].second);
+  //   }
+  //   table_->increment_even(i2);
+  // }
+
+  // return false;
   return found;
 
   // find_false_positive_removal:
@@ -292,7 +362,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::findinfilter(
 
   bool found = false;
   uint32_t i1, i2;
-  uint32_t tag[4];
+  uint16_t tag[4];
   uint64_t tag_hash;
 
   GenerateIndexTagHash(key, &i1, &i2, tag, tag_hash);
@@ -357,7 +427,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::insert(
 
 {
   uint32_t i1, i2;
-  uint32_t tag[4];
+  uint16_t tag[4];
   uint64_t tag_hash;
 
   if (atomic_load(&victim_.used)) {
@@ -371,7 +441,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::insert(
 template <typename ItemType, size_t bits_per_item,
           template <size_t> class TableType, typename HashFamily>
 bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::insert_impl(
-  const ItemType &key, const uint64_t &val, size_t i, uint32_t curtag[4], uint64_t curtaghash, bool has_lock)
+  const ItemType &key, const uint64_t &val, size_t i, uint16_t curtag[4], uint64_t curtaghash, bool has_lock)
 {
   uint32_t i1, i2;
   size_t curindex = i;
@@ -446,7 +516,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::erase(
 
   bool found = false;
   uint32_t i1, i2;
-  uint32_t tag[4];
+  uint16_t tag[4];
   uint64_t tag_hash;
 
   GenerateIndexTagHash(key, &i1, &i2, tag, tag_hash);
@@ -526,7 +596,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::erase(
   if (victim_.used) {
     write_lock.lock();
     victim_.used = false;
-    uint32_t tag[4];
+    uint16_t tag[4];
     TagHash(victim_.tag_hash, tag);
     insert_impl(victim_.key, victim_.val, victim_.index, tag, victim_.tag_hash, true);
     write_lock.unlock();
@@ -565,8 +635,8 @@ void CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::remove_false_
 
   uint32_t temp_index;
   uint64_t tag_hash;
-  uint32_t tag_slot[4];
-  uint32_t tag_new_slot[4];
+  uint16_t tag_slot[4];
+  uint16_t tag_new_slot[4];
 
   GenerateIndexTagHash(key_value_slot.first, &temp_index, &temp_index, tag_slot, tag_hash);
   if(!empty_new_slot)

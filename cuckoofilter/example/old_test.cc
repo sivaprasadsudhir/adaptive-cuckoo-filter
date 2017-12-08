@@ -27,6 +27,8 @@ void run_test(int n) {
     }
   }
 
+  // exit(0);
+
   std::cout << "Successfully inserted: " << num_inserted << std::endl;
 
   // Check if previously inserted items are in the filter, expected
@@ -77,13 +79,13 @@ int main(int argc, char **argv) {
   std::thread t1(run_test, 0);
   std::thread t2(run_test, 1);
   std::thread t3(run_test, 2);
-  std::thread t4(run_test, 3);
-  std::thread t5(run_test, 4);
+  // std::thread t4(run_test, 3);
+  // std::thread t5(run_test, 4);
   t1.join();
   t2.join();
   t3.join();
-  t4.join();
-  t5.join();
+  // t4.join();
+  // t5.join();
 
   std::cout << "Test Successful" << std::endl;
 
