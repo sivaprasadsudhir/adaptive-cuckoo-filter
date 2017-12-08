@@ -10,7 +10,7 @@ CFLAGS += --std=c++11 -fno-strict-aliasing -Wall -c -I. -I./include -I/usr/inclu
 CFLAGS += -I/usr/local/opt/openssl/include -I ../libcuckoo/install/include
 CFLAGS += -I./benchmarks -I/usr/local/include -I/usr/local/lib 
 
-LDFLAGS+= -Wall -lpthread -lssl -lcrypto -L/usr/local/opt/openssl/lib -lxxhash
+LDFLAGS+= -Wall -lpthread -lssl -lcrypto -L/usr/local/opt/openssl/lib
 
 LIBOBJECTS = \
 	./src/hashutil.o \

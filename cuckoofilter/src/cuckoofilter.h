@@ -6,7 +6,6 @@
 #include <libcuckoo/cuckoohash_map.hh>
 #include <mutex>
 #include <atomic>
-#include <xxhash.h>
 
 #include "debug.h"
 #include "hashutil.h"
@@ -73,38 +72,19 @@ class CuckooFilter {
   inline void GenerateIndexTagHash(const ItemType& key, uint32_t* index1,
             uint32_t* index2, uint16_t* tag, uint64_t &tag_hash) const
   {
-    // char *buf = (char *) &key;
-    // *index2 = *index1 = 0;
-
-    // uint64_t hash = XXH64(buf, sizeof(ItemType), 0);
-    // *index1 = ((uint32_t)hash) & (table_->NumBuckets() - 1);
-    // *index2 = ((uint32_t)(hash >> 32)) & (table_->NumBuckets() - 1);
-
-    // std::cout << "HERE" << *index1 << std::endl;
-    // std::cout << "HERE" << *index2 << std::endl;
-
-    // HashUtil::BobHash((&key), sizeof(ItemType), index1, index2);
-    // *index1 = *index1 & (table_->NumBuckets() - 1);
-    // *index2 = *index2 & (table_->NumBuckets() - 1);
 
     uint64_t hash1 = hasher_(key);
     *index1 = (hash1 >> 32) & (table_->NumBuckets() - 1);
 
     uint64_t hash2 = hasher_(*index1 ^ ((uint16_t)hash1 * 0x5bd1e995));
-    // uint64_t hash2 = (uint64_t)(*index1 ^ ((uint16_t)hash1 * 0x5bd1e995));
     *index2 = ((uint32_t)hash2) & (table_->NumBuckets() - 1);
 
     tag_hash = (hash2 & 0xffffffff00000000) | (hash1 & 0xffffffff);
-
-    // uint16_t temp_tag[4];
-    // TagHash(tag_hash, temp_tag);
 
     uint64_t mask = ~(0xffff);
     tag_hash &= mask;
 
     uint64_t part_mask = 0xfff << 16;
-
-    // std::cout << std::hex << tag_hash << "\n";
     // 4
     tag_hash += ((uint64_t)!(tag_hash & (part_mask))) << 16;
     tag[0] = (tag_hash >> 16) & 0xfff;
@@ -120,17 +100,6 @@ class CuckooFilter {
     part_mask <<= 12;
     tag_hash += ((uint64_t)!(tag_hash & (part_mask))) << (16 + 12 + 12 + 12);
     tag[3] = (tag_hash >> (16 + 12 + 12 + 12)) & 0xfff;
-    // 0
-    
-    // std::cout << *index1 << " " << *index2 << " INDICES \n";
-    // for(int i = 0; i < 4; i++) {
-    //   std::cout << std::hex << tag[i] << " ";
-    // //   std::cout << std::hex << temp_tag[i] << std::endl;
-    // }
-
-    // for(int i = 0; i < 4; i++) {
-    //   assert(tag[i] == temp_tag[i]);
-    // }
   }
 
   // load factor is the fraction of occupancy
@@ -145,7 +114,7 @@ class CuckooFilter {
     size_t num_buckets = upperpower2(std::max<uint64_t>(1, max_num_keys / assoc));
     double frac = (double)max_num_keys / num_buckets / assoc;
     if (frac > 0.96) {
-      num_buckets_ <<= 1;
+      num_buckets <<= 1;
     }
     victim_.used = false;
     table_ = new TableType<bits_per_item>(num_buckets);
