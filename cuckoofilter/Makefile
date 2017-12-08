@@ -28,7 +28,7 @@ clean:
 test: example/test.o $(LIBOBJECTS) 
 	$(CC) example/test.o $(LIBOBJECTS) $(LDFLAGS) -o $@
 
-old_test: example/old_test.o $(LIBOBJECTS) 
+old_test: example/old_test.o $(LIBOBJECTS)
 	$(CC) example/old_test.o $(LIBOBJECTS) $(LDFLAGS) -o $@
 
 benchmark: example/benchmark.o $(LIBOBJECTS) 

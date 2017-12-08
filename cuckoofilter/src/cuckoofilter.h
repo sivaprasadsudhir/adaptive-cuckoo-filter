@@ -44,6 +44,9 @@ class CuckooFilter {
   // Number of items stored
   size_t num_items_;
 
+  // Number of buckets
+  size_t num_buckets_;
+
   typedef struct {
     size_t index;
     uint64_t tag_hash;
@@ -142,7 +145,7 @@ class CuckooFilter {
     size_t num_buckets = upperpower2(std::max<uint64_t>(1, max_num_keys / assoc));
     double frac = (double)max_num_keys / num_buckets / assoc;
     if (frac > 0.96) {
-      num_buckets <<= 1;
+      num_buckets_ <<= 1;
     }
     victim_.used = false;
     table_ = new TableType<bits_per_item>(num_buckets);
@@ -170,6 +173,7 @@ class CuckooFilter {
   bool insert_impl(const ItemType &key, const uint64_t &val, uint32_t i1, uint32_t i2, uint16_t tag[4], uint64_t taghash);
   bool erase(const ItemType &key);
   void remove_false_positives(size_t index, size_t slot);
+  void iterate_all(std::list<std::pair < const ItemType, uint64_t> >& elements) { hashmap.iterate_all(elements);}
 
 };
 
@@ -202,7 +206,6 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::find(
   uint64_t tag_hash;
 
   GenerateIndexTagHash(key, &i1, &i2, tag, tag_hash);
-
   uint32_t false_positives_index[8];
   uint8_t false_positives_slot[8];
   uint8_t curindex = 0;
@@ -291,7 +294,6 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::findinfilter(
   uint64_t tag_hash;
 
   GenerateIndexTagHash(key, &i1, &i2, tag, tag_hash);
-
   uint16_t c1, c2;
   
   do {
