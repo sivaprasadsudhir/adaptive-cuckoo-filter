@@ -6,11 +6,15 @@
 #include <iostream>
 #include <vector>
 #include <thread>
+#include <mutex>
 
 using cuckoofilter::CuckooFilter;
 
-int total_items = 100000;
-CuckooFilter<int, 12> filteredhash(total_items);
+int total_inserts = 0;
+
+int total_items = 1000000000;
+CuckooFilter<int, 12> filteredhash((1ULL << 20)*2);
+std::mutex l;
 
 void run_test(int n) {
   int start = n * total_items * 10;
@@ -21,6 +25,7 @@ void run_test(int n) {
   // Insert items to this filtered hash table
   int num_inserted = 0;
   for (int i = start; i < start + total_items; i++, num_inserted++) {
+    // std::cout << i << std::endl;
     uint64_t val = 2 * i;
     if (!filteredhash.insert(i, val)) {
       break;
@@ -28,6 +33,10 @@ void run_test(int n) {
   }
 
   // exit(0);
+
+  l.lock();
+  total_inserts += num_inserted;
+  l.unlock();
 
   std::cout << "Successfully inserted: " << num_inserted << std::endl;
 
@@ -79,15 +88,15 @@ int main(int argc, char **argv) {
   std::thread t1(run_test, 0);
   std::thread t2(run_test, 1);
   std::thread t3(run_test, 2);
-  // std::thread t4(run_test, 3);
-  // std::thread t5(run_test, 4);
+  std::thread t4(run_test, 3);
+  std::thread t5(run_test, 4);
   t1.join();
   t2.join();
   t3.join();
-  // t4.join();
-  // t5.join();
+  t4.join();
+  t5.join();
 
-  std::cout << "Test Successful" << std::endl;
+  std::cout << "Test Successful: " << total_inserts << std::endl;
 
   return 0;
 }
