@@ -13,7 +13,7 @@ using cuckoofilter::CuckooFilter;
 int total_inserts = 0;
 
 int total_items = 1000000000;
-CuckooFilter<int, 12> filteredhash((1ULL << 20)*2);
+CuckooFilter<int, 12> filteredhash((1ULL << 16)*2);
 std::mutex l;
 
 void run_test(int n) {
@@ -45,13 +45,31 @@ void run_test(int n) {
   std::cout << "Contains done: " << n << std::endl;
 
   // // Check if previously inserted items are in the table, expected
-  // // true for all items and val == -i
+  // // true for all items and val == 2*i
   for (int i = start; i < start + num_inserted; i++) {
     uint64_t val;
     assert(filteredhash.find(i, val));
     assert(val == 2 * i);
   }
   std::cout << "Find done: " << n << std::endl;
+
+  // Update values
+  for (int i = start; i < start + (num_inserted/2); i++) {
+    uint64_t val = 4 * i;
+    assert(filteredhash.update(i, val));
+  }
+  std::cout << "update Done: " << n << std::endl;
+
+  // // Check if updated items are in the table, expected
+  // // true for all items and val == 4*i
+  for (int i = start; i < start + (num_inserted/2); i++) {
+    uint64_t val;
+    assert(filteredhash.find(i, val));
+    assert(val == 4 * i);
+  }
+  std::cout << "Find done: " << n << std::endl;
+
+
 
   // Check non-existing items, no false positives expected
     // std::cout << "Bla: " << std::endl;

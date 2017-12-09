@@ -40,7 +40,4 @@ int main(int argc, char* argv[]) {
 			mutation_fraction = 0.05;
 		}
 	}
-
-	
-
 }
