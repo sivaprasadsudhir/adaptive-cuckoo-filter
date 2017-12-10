@@ -23,6 +23,8 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
+	cout << "Number of elements: " << num_elements << "\n";
+
 	if(argc >= 3) {
 		stringstream input_string(argv[2]);
 		input_string >> num_threads;
@@ -32,6 +34,8 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
+	cout << "Number of threads: " << num_threads << "\n";
+
 	if(argc >= 4) {
 		stringstream input_string(argv[3]);
 		input_string >> mutation_fraction;
@@ -40,4 +44,9 @@ int main(int argc, char* argv[]) {
 			mutation_fraction = 0.05;
 		}
 	}
+
+	cout << "Mutation Fraction: " << mutation_fraction << "\n";
+
+	
+
 }

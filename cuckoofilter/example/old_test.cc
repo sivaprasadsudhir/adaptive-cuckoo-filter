@@ -1,6 +1,6 @@
 #include "cuckoofilter.h"
 
-#include <assert.h>
+#include <cassert>
 #include <math.h>
 
 #include <iostream>
@@ -12,21 +12,22 @@ using cuckoofilter::CuckooFilter;
 
 int total_inserts = 0;
 
-int total_items = 1000000000;
-CuckooFilter<int, 12> filteredhash((1ULL << 16)*2);
+int total_items = 100000000;
+CuckooFilter<size_t, 12> filteredhash((1ULL << 20)*2);
 std::mutex l;
 
 void run_test(int n) {
-  int start = n * total_items * 10;
+  size_t start = n * total_items * 10;
   std::cout << "Started inserting: " << n << std::endl;
 
   // Insert items to this filtered hash table
 
-  int num_inserted = 0;
-  for (int i = start; i < start + total_items; i++, num_inserted++) {
+  size_t num_inserted = 0;
+  for (size_t i = start; i < start + total_items; i++, num_inserted++) {
     // std::cout << i << std::endl;
     uint64_t val = 2 * i;
-    if (!filteredhash.insert(i, val)) {
+    bool insert_val = filteredhash.insert(i, val);
+    if (!insert_val) {
       break;
     }
   }
@@ -39,32 +40,36 @@ void run_test(int n) {
 
   // Check if previously inserted items are in the filter, expected
   // true for all items
-  for (int i = start; i < start + num_inserted; i++) {
-    assert(filteredhash.contains(i));
+  for (size_t i = start; i < start + num_inserted; i++) {
+    bool contains_value = filteredhash.contains(i);
+    assert(contains_value);
   }
   std::cout << "Contains done: " << n << std::endl;
 
   // // Check if previously inserted items are in the table, expected
   // // true for all items and val == 2*i
-  for (int i = start; i < start + num_inserted; i++) {
+  for (size_t i = start; i < start + num_inserted; i++) {
     uint64_t val;
-    assert(filteredhash.find(i, val));
+    bool find_val = filteredhash.find(i, val);
+    assert(find_val);
     assert(val == 2 * i);
   }
   std::cout << "Find done: " << n << std::endl;
 
   // Update values
-  for (int i = start; i < start + (num_inserted/2); i++) {
+  for (size_t i = start; i < start + (num_inserted/2); i++) {
     uint64_t val = 4 * i;
-    assert(filteredhash.update(i, val));
+    bool update_val = filteredhash.update(i, val);
+    assert(update_val);
   }
   std::cout << "update Done: " << n << std::endl;
 
   // // Check if updated items are in the table, expected
   // // true for all items and val == 4*i
-  for (int i = start; i < start + (num_inserted/2); i++) {
+  for (size_t i = start; i < start + (num_inserted/2); i++) {
     uint64_t val;
-    assert(filteredhash.find(i, val));
+    bool find_val = filteredhash.find(i, val);
+    assert(find_val);
     assert(val == 4 * i);
   }
   std::cout << "Find done: " << n << std::endl;
@@ -73,9 +78,12 @@ void run_test(int n) {
 
   // Check non-existing items, no false positives expected
     // std::cout << "Bla: " << std::endl;
-  for (int i = start + total_items; i < start + (2* total_items); i++) {
-    uint64_t val;
-    assert(!filteredhash.find(i, val));
+  for (size_t i = start + total_items; i < start + (2* total_items); i++) {
+    bool contains_value = filteredhash.contains(i);
+    if(contains_value) {
+      std::cout << "Found : " << i << "\n";
+    }
+    assert(!contains_value);
   }
     // std::cout << "Blu: " << std::endl;
   std::cout << "Contains of non existent things done: " << n << std::endl;
@@ -84,15 +92,11 @@ void run_test(int n) {
   // Delete all the values, true expected
   // find should return false
   // contains should return false
-  for (int i = start; i < start + num_inserted; i++) {
-    // std::cout << "Bla1: " << i << std::endl;
-    assert(filteredhash.erase(i));
-    // std::cout << "Bla2: " << i << std::endl;
-    uint64_t val;
-    assert(!filteredhash.find(i, val));
-    // std::cout << "Bla3: " << i << std::endl;
-    assert(!filteredhash.contains(i));
-    // std::cout << "Bla4: " << i << std::endl;
+  for (size_t i = start; i < start + num_inserted; i++) {
+    bool erase_value = filteredhash.erase(i);
+    assert(erase_value);
+    bool contains_value = filteredhash.contains(i);
+    assert(!contains_value);
   }
   
 }
@@ -111,6 +115,7 @@ int main(int argc, char **argv) {
   t5.join();
 
   std::cout << "Test Successful: " << total_inserts << std::endl;
+  std::cout << "Num elements at the end of test: " << filteredhash.Size() << std::endl;
 
   return 0;
 }

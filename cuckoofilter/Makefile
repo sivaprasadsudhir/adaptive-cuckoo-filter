@@ -3,8 +3,8 @@ AR = ar
 PREFIX=/usr/local
 
 # Uncomment one of the following to switch between debug and opt mode
-OPT = -O3 -DNDEBUG
-# OPT = -g -ggdb
+#OPT = -O3 -DNDEBUG
+OPT = -g -ggdb
 
 CFLAGS += --std=c++11 -fno-strict-aliasing -Wall -c -I. -I./include -I/usr/include/ -I./src/ $(OPT) 
 CFLAGS += -I/usr/local/opt/openssl/include -I ../libcuckoo/install/include

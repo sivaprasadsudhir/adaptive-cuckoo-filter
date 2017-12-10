@@ -25,6 +25,8 @@ enum Status {
 // maximum number of cuckoo kicks before claiming failure
 const size_t kMaxCuckooCount = 500;
 
+
+const size_t one = 1;
 // A cuckoo filter class exposes a Bloomier filter interface,
 // providing methods of Add, Delete, Contain. It takes three
 // template parameters:
@@ -41,7 +43,7 @@ class CuckooFilter {
   cuckoohash_map<ItemType, uint64_t> hashmap;
 
   // Number of items stored
-  size_t num_items_;
+  std::atomic_size_t num_items_;
 
   // Number of buckets
   size_t num_buckets_;
@@ -116,7 +118,7 @@ class CuckooFilter {
     if (frac > 0.96) {
       num_buckets <<= 1;
     }
-    victim_.used = false;
+    atomic_store(&victim_.used, false);
     table_ = new TableType<bits_per_item>(num_buckets);
   }
 
@@ -130,7 +132,7 @@ class CuckooFilter {
   std::string Info() const;
 
   // number of current inserted items;
-  size_t Size() const { return num_items_; }
+  size_t Size() const { return std::atomic_load_explicit(&num_items_, std::memory_order_acquire); }
 
   // size of the filter in bytes.
   size_t SizeInBytes() const { return table_->SizeInBytes(); }
@@ -344,7 +346,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::insert_impl(
       std::pair<ItemType, uint64_t> key_value;
       hashmap.add_to_bucket_at_slot(curindex, slot, curkey, curval);
       hashmap.read_from_bucket_at_slot(curindex, slot, key_value);
-      num_items_++;
+      std::atomic_fetch_add(&num_items_, one);
       table_->increment_even(curindex);
       return true;
     }
@@ -353,7 +355,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::insert_impl(
 
   write_lock.lock();
 
-  if(victim_.used) {
+  if(atomic_load(&victim_.used)) {
     write_lock.unlock();
     return false;
   }
@@ -369,7 +371,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::insert_impl(
       std::pair<ItemType, uint64_t> key_value;
       hashmap.add_to_bucket_at_slot(curindex, slot, curkey, curval);
       hashmap.read_from_bucket_at_slot(curindex, slot, key_value);
-      num_items_++;
+      std::atomic_fetch_add(&num_items_, one);
       table_->increment_even(curindex);
       write_lock.unlock();
       return true;
@@ -396,9 +398,11 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::insert_impl(
   victim_.tag_hash = curtaghash;
   victim_.key = curkey;
   victim_.val = curval;
-  victim_.used = true;
+  atomic_store(&victim_.used, true);
 
   table_->increment_even(curindex);
+
+  std::atomic_fetch_add(&num_items_, one);
 
   write_lock.unlock();
 
@@ -416,7 +420,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::erase(
   uint64_t tag_hash;
 
   GenerateIndexTagHash(key, &i1, &i2, tag, tag_hash);
-  
+
   // check in i1
 
   table_->increment_odd(i1);
@@ -435,6 +439,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::erase(
         if(i1 != i2) {
           table_->increment_even(i2);
         }
+        std::atomic_fetch_sub(&num_items_, one);
         return true;
       }
     }
@@ -452,6 +457,8 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::erase(
         if(i1 != i2) {
           table_->increment_even(i2);
         }
+        std::atomic_fetch_sub(&num_items_, one);
+
         return true;
       }
     }
@@ -463,9 +470,10 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::erase(
   }
 
   write_lock.lock();
-  if(victim_.used && (key == victim_.key)) {
-    victim_.used = false;
+  if(atomic_load(&victim_.used) && (key == victim_.key)) {
+    atomic_store(&victim_.used, false);
     write_lock.unlock();
+    std::atomic_fetch_sub(&num_items_, one);
     return true;
   }
   write_lock.unlock();
@@ -538,7 +546,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::update(
   for(int slot = 0; slot < 4; slot++) {
 
     if(((match & mask) + 1) & (mask + 1)) {
-      if(update_bucket_at_slot(i1, slot, key, val)) {
+      if(hashmap.update_bucket_at_slot(i1, slot, key, val)) {
 
         table_->increment_even(i2);
         if(i1 != i2) {
@@ -558,7 +566,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::update(
   for(int slot = 0; slot < 4; slot++) {
 
     if(((match & mask) + 1) & (mask + 1)) {
-      if(update_bucket_at_slot(i2, slot, key, val)) {
+      if(hashmap.update_bucket_at_slot(i2, slot, key, val)) {
 
         table_->increment_even(i2);
         if(i1 != i2) {
@@ -577,7 +585,7 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::update(
   }
 
   write_lock.lock();
-  if(victim_.used && (key == victim_.key)) {
+  if(atomic_load(&victim_.used) && (key == victim_.key)) {
     victim_.val = val;
     write_lock.unlock();
     return true;
