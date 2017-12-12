@@ -44,8 +44,9 @@ int main(int argc, char **argv) {
   int num_reads = 0;
 
   while(file_in >> op) {
+    file_in >> key;
     if(op == "READ") {
-      std::cout << "READ" << std::endl;
+      // std::cout << "READ" << std::endl;
       found_in_filter = table.findinfilter(key);
       found_in_table = table.find(key, val);
 
@@ -56,10 +57,10 @@ int main(int argc, char **argv) {
       num_reads++;
 
     } else if(op == "INSERT") {
-      std::cout << "INSERT" << std::endl;
+      // std::cout << "INSERT" << std::endl;
       table.insert(key, key);
     } else {
-      // table.update(key, key);
+      table.update(key, key);
     }
   }
 

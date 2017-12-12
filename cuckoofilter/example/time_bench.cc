@@ -46,6 +46,7 @@ int main(int argc, char **argv) {
   struct timeval t_u1, t_u2;
 
   while(file_in >> op) {
+    file_in >> key;
     if(op == "READ") {
       gettimeofday(&t_r1, NULL);
       table.find(key, val);
