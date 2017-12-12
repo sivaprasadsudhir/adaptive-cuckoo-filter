@@ -693,17 +693,38 @@ public:
     buckets_.eraseKV(bucket_ind, slot);
   }
 
+  template <typename K, typename... Args>
+  bool update_bucket_at_slot(const size_type i, const size_type slot,
+                            K &&key, Args &&... val) {
+    if(buckets_[i].key(slot) == key) {
+      buckets_.setKV(i, slot, 0, std::forward<K>(key), std::forward<Args>(val)...);
+      return true;
+    }
+
+    return false;
+    
+  }
+
   //Iterator: We can't use the existing iterator since the hash wrapper has been ripped out.
-  template <typename K, typename V> void iterate_all(std::list < std::pair<const K, V> >& elements) {
-    elements.clear();
-    for(size_type index = 0; index < buckets_->size(); index++) {
+  template <typename K, typename V> size_type iterate_all(
+    std::vector< std::pair<K, V> >& elements, size_type max_items) {
+    //elements.clear();
+
+    size_t num_items = 0;
+    for(size_type index = 0; index < buckets_.size(); index++) {
       const bucket b = buckets_[index];
       for(size_type slot = 0; slot < slot_per_bucket(); slot++) {
         if(b.occupied(slot)) {
-          elements.push_back(b.kvpair(slot));
+          //elements[num_items++] = b.kvpair(slot);
+          elements[num_items].first = b.key(slot);
+          elements[num_items].second = b.mapped(slot);
+          if(max_items == num_items){
+            return max_items;
+          }
         }
       }
     }
+    return num_items;
   }
 
 private:
