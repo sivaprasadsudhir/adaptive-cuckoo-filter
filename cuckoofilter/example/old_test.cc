@@ -17,87 +17,87 @@ CuckooFilter<size_t, 12> filteredhash((1ULL << 20)*2);
 std::mutex l;
 
 void run_test(int n) {
-  size_t start = n * total_items * 10;
-  std::cout << "Started inserting: " << n << std::endl;
+  // size_t start = n * total_items * 10;
+  // std::cout << "Started inserting: " << n << std::endl;
 
-  // Insert items to this filtered hash table
+  // // Insert items to this filtered hash table
 
-  size_t num_inserted = 0;
-  for (size_t i = start; i < start + total_items; i++, num_inserted++) {
-    // std::cout << i << std::endl;
-    uint64_t val = 2 * i;
-    bool insert_val = filteredhash.insert(i, val);
-    if (!insert_val) {
-      break;
-    }
-  }
+  // size_t num_inserted = 0;
+  // for (size_t i = start; i < start + total_items; i++, num_inserted++) {
+  //   // std::cout << i << std::endl;
+  //   uint64_t val = 2 * i;
+  //   bool insert_val = filteredhash.insert(i, val);
+  //   if (!insert_val) {
+  //     break;
+  //   }
+  // }
 
-  l.lock();
-  total_inserts += num_inserted;
-  l.unlock();
+  // l.lock();
+  // total_inserts += num_inserted;
+  // l.unlock();
 
-  std::cout << "Successfully inserted: " << num_inserted << std::endl;
+  // std::cout << "Successfully inserted: " << num_inserted << std::endl;
 
-  // Check if previously inserted items are in the filter, expected
-  // true for all items
-  for (size_t i = start; i < start + num_inserted; i++) {
-    bool contains_value = filteredhash.contains(i);
-    assert(contains_value);
-  }
-  std::cout << "Contains done: " << n << std::endl;
+  // // Check if previously inserted items are in the filter, expected
+  // // true for all items
+  // for (size_t i = start; i < start + num_inserted; i++) {
+  //   bool contains_value = filteredhash.contains(i);
+  //   assert(contains_value);
+  // }
+  // std::cout << "Contains done: " << n << std::endl;
 
-  // // Check if previously inserted items are in the table, expected
-  // // true for all items and val == 2*i
-  for (size_t i = start; i < start + num_inserted; i++) {
-    uint64_t val;
-    bool find_val = filteredhash.find(i, val);
-    assert(find_val);
-    assert(val == 2 * i);
-  }
-  std::cout << "Find done: " << n << std::endl;
+  // // // Check if previously inserted items are in the table, expected
+  // // // true for all items and val == 2*i
+  // for (size_t i = start; i < start + num_inserted; i++) {
+  //   uint64_t val;
+  //   bool find_val = filteredhash.find(i, val);
+  //   assert(find_val);
+  //   assert(val == 2 * i);
+  // }
+  // std::cout << "Find done: " << n << std::endl;
 
-  // Update values
-  for (size_t i = start; i < start + (num_inserted/2); i++) {
-    uint64_t val = 4 * i;
-    bool update_val = filteredhash.update(i, val);
-    assert(update_val);
-  }
-  std::cout << "update Done: " << n << std::endl;
+  // // Update values
+  // for (size_t i = start; i < start + (num_inserted/2); i++) {
+  //   uint64_t val = 4 * i;
+  //   bool update_val = filteredhash.update(i, val);
+  //   assert(update_val);
+  // }
+  // std::cout << "update Done: " << n << std::endl;
 
-  // // Check if updated items are in the table, expected
-  // // true for all items and val == 4*i
-  for (size_t i = start; i < start + (num_inserted/2); i++) {
-    uint64_t val;
-    bool find_val = filteredhash.find(i, val);
-    assert(find_val);
-    assert(val == 4 * i);
-  }
-  std::cout << "Find done: " << n << std::endl;
-
-
-
-  // Check non-existing items, no false positives expected
-    // std::cout << "Bla: " << std::endl;
-  for (size_t i = start + total_items; i < start + (2* total_items); i++) {
-    bool contains_value = filteredhash.contains(i);
-    if(contains_value) {
-      std::cout << "Found : " << i << "\n";
-    }
-    assert(!contains_value);
-  }
-    // std::cout << "Blu: " << std::endl;
-  std::cout << "Contains of non existent things done: " << n << std::endl;
+  // // // Check if updated items are in the table, expected
+  // // // true for all items and val == 4*i
+  // for (size_t i = start; i < start + (num_inserted/2); i++) {
+  //   uint64_t val;
+  //   bool find_val = filteredhash.find(i, val);
+  //   assert(find_val);
+  //   assert(val == 4 * i);
+  // }
+  // std::cout << "Find done: " << n << std::endl;
 
 
-  // Delete all the values, true expected
-  // find should return false
-  // contains should return false
-  for (size_t i = start; i < start + num_inserted; i++) {
-    bool erase_value = filteredhash.erase(i);
-    assert(erase_value);
-    bool contains_value = filteredhash.contains(i);
-    assert(!contains_value);
-  }
+
+  // // Check non-existing items, no false positives expected
+  //   // std::cout << "Bla: " << std::endl;
+  // for (size_t i = start + total_items; i < start + (2* total_items); i++) {
+  //   bool contains_value = filteredhash.contains(i);
+  //   if(contains_value) {
+  //     std::cout << "Found : " << i << "\n";
+  //   }
+  //   assert(!contains_value);
+  // }
+  //   // std::cout << "Blu: " << std::endl;
+  // std::cout << "Contains of non existent things done: " << n << std::endl;
+
+
+  // // Delete all the values, true expected
+  // // find should return false
+  // // contains should return false
+  // for (size_t i = start; i < start + num_inserted; i++) {
+  //   bool erase_value = filteredhash.erase(i);
+  //   assert(erase_value);
+  //   bool contains_value = filteredhash.contains(i);
+  //   assert(!contains_value);
+  // }
   
 }
 

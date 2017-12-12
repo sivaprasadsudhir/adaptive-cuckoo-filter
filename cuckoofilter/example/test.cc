@@ -14,6 +14,24 @@ using cuckoofilter::CuckooFilter;
 
 int main(int argc, char **argv) {
 
+  // if(argc < 2) {
+  //   std::cout << "Arguments not supplied properly" << std::endl;
+  //   exit(1);
+  // }
+
+  // char* file_name;
+
+  // file_name = argv[1];
+
+  // ifstream file_in;
+  // ofstream file_out;
+
+  // file_in.open(file_name);
+  // string op;
+  // uint64_t 
+  // while()
+
+
   srand (time(NULL));
 
   size_t s_size, a_size, ratio_size, query_size;

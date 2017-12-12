@@ -145,7 +145,7 @@ class CuckooFilter {
   bool erase(const ItemType &key);
   void remove_false_positives(size_t index, size_t slot);
   void iterate_all(std::list<std::pair < const ItemType, uint64_t> >& elements) { hashmap.iterate_all(elements);}
-  bool update(const ItemType &key, const uint64_t &val);
+  // bool update(const ItemType &key, const uint64_t &val);
 
 };
 
@@ -522,79 +522,79 @@ void CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::remove_false_
     hashmap.del_from_bucket_at_slot(index, slot);
 }
 
-template <typename ItemType, size_t bits_per_item,
-          template <size_t> class TableType, typename HashFamily>
-bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::update(
-                                  const ItemType &key, const uint64_t &val) {
+// template <typename ItemType, size_t bits_per_item,
+//           template <size_t> class TableType, typename HashFamily>
+// bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::update(
+//                                   const ItemType &key, const uint64_t &val) {
 
 
-  uint32_t i1, i2;
-  uint16_t tag[4];
-  uint64_t tag_hash;
+//   uint32_t i1, i2;
+//   uint16_t tag[4];
+//   uint64_t tag_hash;
 
-  GenerateIndexTagHash(key, &i1, &i2, tag, tag_hash);
+//   GenerateIndexTagHash(key, &i1, &i2, tag, tag_hash);
 
-  table_->increment_odd(i1);
-  if(i1 != i2) {
-    table_->increment_odd(i2);
-  }
+//   table_->increment_odd(i1);
+//   if(i1 != i2) {
+//     table_->increment_odd(i2);
+//   }
 
-  uint64_t bucket = table_->ReadBucket(i1);
-  uint64_t match = ~(bucket ^ (tag_hash >> 16));
-  uint16_t mask = 0xfff;
+//   uint64_t bucket = table_->ReadBucket(i1);
+//   uint64_t match = ~(bucket ^ (tag_hash >> 16));
+//   uint16_t mask = 0xfff;
 
-  for(int slot = 0; slot < 4; slot++) {
+//   for(int slot = 0; slot < 4; slot++) {
 
-    if(((match & mask) + 1) & (mask + 1)) {
-      if(hashmap.update_bucket_at_slot(i1, slot, key, val)) {
+//     if(((match & mask) + 1) & (mask + 1)) {
+//       if(hashmap.update_bucket_at_slot(i1, slot, key, val)) {
 
-        table_->increment_even(i2);
-        if(i1 != i2) {
-          table_->increment_even(i1);
-        }
-        return true;
+//         table_->increment_even(i2);
+//         if(i1 != i2) {
+//           table_->increment_even(i1);
+//         }
+//         return true;
 
-      }
-    }
-    match >>= 12;
-  }
+//       }
+//     }
+//     match >>= 12;
+//   }
 
-  bucket = table_->ReadBucket(i2);
-  match = ~(bucket ^ (tag_hash >> 16));
-  mask = 0xfff;
+//   bucket = table_->ReadBucket(i2);
+//   match = ~(bucket ^ (tag_hash >> 16));
+//   mask = 0xfff;
   
-  for(int slot = 0; slot < 4; slot++) {
+//   for(int slot = 0; slot < 4; slot++) {
 
-    if(((match & mask) + 1) & (mask + 1)) {
-      if(hashmap.update_bucket_at_slot(i2, slot, key, val)) {
+//     if(((match & mask) + 1) & (mask + 1)) {
+//       if(hashmap.update_bucket_at_slot(i2, slot, key, val)) {
 
-        table_->increment_even(i2);
-        if(i1 != i2) {
-          table_->increment_even(i1);
-        }
-        return true;
+//         table_->increment_even(i2);
+//         if(i1 != i2) {
+//           table_->increment_even(i1);
+//         }
+//         return true;
 
-      }
-    }
-    match >>= 12;
-  }
+//       }
+//     }
+//     match >>= 12;
+//   }
 
-  table_->increment_even(i2);
-  if(i1 != i2) {
-    table_->increment_even(i1);
-  }
+//   table_->increment_even(i2);
+//   if(i1 != i2) {
+//     table_->increment_even(i1);
+//   }
 
-  write_lock.lock();
-  if(atomic_load(&victim_.used) && (key == victim_.key)) {
-    victim_.val = val;
-    write_lock.unlock();
-    return true;
-  }
-  write_lock.unlock();
+//   write_lock.lock();
+//   if(atomic_load(&victim_.used) && (key == victim_.key)) {
+//     victim_.val = val;
+//     write_lock.unlock();
+//     return true;
+//   }
+//   write_lock.unlock();
 
-  return insert_impl(key, val, i1, i2, tag, tag_hash);
+//   return insert_impl(key, val, i1, i2, tag, tag_hash);
 
-}
+// }
 
 }  // namespace cuckoofilter
 #endif  // CUCKOO_FILTER_CUCKOO_FILTER_H_

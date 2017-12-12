@@ -20,7 +20,7 @@ ALIB = libcuckoofilter.a
 
 TEST = test
 
-all: $(TEST) old_test
+all: $(TEST) old_test time_bench false_positive_bench
 
 clean:
 	rm -f $(TEST) */*.o
@@ -33,6 +33,12 @@ old_test: example/old_test.o $(LIBOBJECTS)
 
 benchmark: example/benchmark.o $(LIBOBJECTS) 
 	$(CC) example/benchmark.o $(LIBOBJECTS) $(LDFLAGS) -o $@
+
+time_bench: example/time_bench.o $(LIBOBJECTS) 
+	$(CC) example/time_bench.o $(LIBOBJECTS) $(LDFLAGS) -o $@
+
+false_positive_bench: example/false_positive_bench.o $(LIBOBJECTS) 
+	$(CC) example/false_positive_bench.o $(LIBOBJECTS) $(LDFLAGS) -o $@
 
 %.o: %.cc ${HEADERS} Makefile
 	$(CC) $(CFLAGS) $< -o $@
