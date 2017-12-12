@@ -3,8 +3,8 @@ AR = ar
 PREFIX=/usr/local
 
 # Uncomment one of the following to switch between debug and opt mode
-#OPT = -O3 -DNDEBUG
-OPT = -g -ggdb
+OPT = -O3 -DNDEBUG
+#OPT = -g -ggdb
 
 CFLAGS += --std=c++11 -fno-strict-aliasing -Wall -c -I. -I./include -I/usr/include/ -I./src/ $(OPT) 
 CFLAGS += -I/usr/local/opt/openssl/include -I ../libcuckoo/install/include
@@ -20,7 +20,7 @@ ALIB = libcuckoofilter.a
 
 TEST = test
 
-all: $(TEST) old_test
+all: $(TEST) old_test cbench cbench_cuckoohash
 
 clean:
 	rm -f $(TEST) */*.o
@@ -30,6 +30,12 @@ test: example/test.o $(LIBOBJECTS)
 
 old_test: example/old_test.o $(LIBOBJECTS)
 	$(CC) example/old_test.o $(LIBOBJECTS) $(LDFLAGS) -o $@
+
+cbench: example/cbench.o $(LIBOBJECTS)
+	$(CC) example/cbench.o $(LIBOBJECTS) $(LDFLAGS) -o $@
+
+cbench_cuckoohash: example/cbench_cuckoohash.o $(LIBOBJECTS)
+	$(CC) example/cbench_cuckoohash.o $(LIBOBJECTS) $(LDFLAGS) -o $@
 
 benchmark: example/benchmark.o $(LIBOBJECTS) 
 	$(CC) example/benchmark.o $(LIBOBJECTS) $(LDFLAGS) -o $@

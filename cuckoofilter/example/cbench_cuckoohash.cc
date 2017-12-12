@@ -1,6 +1,7 @@
-#include "cuckoofilter.h"
 
 #include <iostream>
+#include <string>
+#include <sstream>
 #include <ctime>
 #include <vector>
 #include <thread>
@@ -8,11 +9,11 @@
 #include <sys/time.h>
 #include <cstdlib>
 #include <ctime>
+#include <libcuckoo/cuckoohash_map.hh>
 
 using namespace std;
-using cuckoofilter::CuckooFilter;
 
-CuckooFilter<size_t, 12> *ACF;
+::cuckoohash_map<size_t, uint64_t> *chash;
 size_t num_elements = 100000000;
 size_t num_threads = 4;
 size_t mutation_fraction = 5;
@@ -20,7 +21,7 @@ std::mutex mutate_lock;
 
 void cbench_insert(size_t num_elements) {
 	for(size_t i = 0; i < num_elements; i++) {
-		ACF->insert(i, i);
+		chash->insert(i, i);
 	}
 }
 
@@ -32,12 +33,12 @@ void cbench_search() {
 
 	for (size_t i = 0; i < num_e; i++) {
 		if (mutation_frac) {
-			ret_val = ACF->find(i, val);
+			ret_val = chash->find(i, val);
 			if ((ret_val) && ((rand() % 100) <= mutation_frac)) {
-				ret_val = ACF->erase(i);
+				ret_val = chash->erase(i);
 			}
 		} else {
-			ret_val = ACF->find(i, val);
+			ret_val = chash->find(i, val);
 		}
 
 		(void) ret_val;
@@ -48,8 +49,8 @@ void cbench_delete() {
 	size_t num_e = num_elements;
 	bool ret_val;
 	for(size_t i = 0; i < num_e; i++) {
-		if (ACF->contains(i)) {
-			ret_val = ACF->erase(i);
+		if (chash->contains(i)) {
+			ret_val = chash->erase(i);
 			(void) ret_val;
 		}
 	}
@@ -94,8 +95,10 @@ int main(int argc, char* argv[]) {
 
 	cout << "Mutation Fraction: " << mutation_fraction << "\n";
 
-	ACF = new CuckooFilter<size_t, 12>(num_elements);
 
+	chash = new ::cuckoohash_map<size_t, uint64_t>(num_elements);
+
+	
 	// vector<thread> threads;
 	// gettimeofday(&start, NULL);
 	// for(int i = 0; i < num_threads; i++) {
@@ -107,27 +110,28 @@ int main(int argc, char* argv[]) {
 	// }
 	// gettimeofday(&end, NULL);
 
-	// cout << "Number of elements remaining: " << ACF->Size() << "\n";
+	// cout << "Number of elements remaining: " << chash->size() << "\n";
 	// cout << "Time = " << (((end.tv_sec - start.tv_sec)*1e6) + (end.tv_usec - start.tv_usec)) / 1e6 << "\n";
 
 	gettimeofday(&start, NULL);
 	cbench_insert(num_elements);
 	gettimeofday(&end, NULL);
 
-	cout << "Number of elements inserted: " << ACF->Size() << "\n";
+	cout << "Number of elements inserted: " << chash->size() << "\n";
 	cout << "Time = " << (((end.tv_sec - start.tv_sec)*1e6) + (end.tv_usec - start.tv_usec)) / 1e6 << "\n";
 
-	vector<pair < size_t, uint64_t> > elements;
+	//vector<pair < size_t, uint64_t> > elements;
 
 
 	gettimeofday(&start, NULL);
-	ACF->iterate_all(elements);
+	//chash->iterate_all(elements);
+	//m::cuckoohash_map<size_t, uint64_t>::iterator it = chash->begin();
 	gettimeofday(&end, NULL);
 
-	cout << "Iterated over: " << elements.size() << "\n";
+	//cout << "Iterated over: " << elements.size() << "\n";
 	cout << "Time = " << (((end.tv_sec - start.tv_sec)*1e6) + (end.tv_usec - start.tv_usec)) / 1e6 << "\n";
 
-	elements.clear();
+	//elements.clear();
 
 
 	vector<thread> threads;
@@ -141,17 +145,17 @@ int main(int argc, char* argv[]) {
 	}
 	gettimeofday(&end, NULL);
 
-	cout << "Number of elements remaining: " << ACF->Size() << "\n";
+	cout << "Number of elements remaining: " << chash->size() << "\n";
 	cout << "Time = " << (((end.tv_sec - start.tv_sec)*1e6) + (end.tv_usec - start.tv_usec)) / 1e6 << "\n";
 
 	gettimeofday(&start, NULL);
 	cbench_delete();
 	gettimeofday(&end, NULL);
 
-	cout << "Number of elements after delete: " << ACF->Size() << "\n";
+	cout << "Number of elements after delete: " << chash->size() << "\n";
 	cout << "Time = " << (((end.tv_sec - start.tv_sec)*1e6) + (end.tv_usec - start.tv_usec)) / 1e6 << "\n";
 
-	delete ACF;
+	delete chash;
 
 
 }

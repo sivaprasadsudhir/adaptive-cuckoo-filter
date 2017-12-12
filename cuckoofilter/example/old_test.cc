@@ -12,7 +12,7 @@ using cuckoofilter::CuckooFilter;
 
 int total_inserts = 0;
 
-int total_items = 100000000;
+size_t total_items = 10000000;
 CuckooFilter<size_t, 12> filteredhash((1ULL << 20)*2);
 std::mutex l;
 
