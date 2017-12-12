@@ -57,10 +57,10 @@ int main(int argc, char **argv) {
       gettimeofday(&t_i2, NULL);
       elapsed_time_i += (t_i2.tv_sec - t_i1.tv_sec) + (t_i2.tv_usec - t_i1.tv_usec) / 1e6;
     } else {
-      // gettimeofday(&t_u1, NULL);
-      // table.update(key, key);
-      // gettimeofday(&t_u2, NULL);
-      // elapsed_time_u += (t_u2.tv_sec - t_u1.tv_sec) + (t_u2.tv_usec - t_u1.tv_usec) / 1e6;
+      gettimeofday(&t_u1, NULL);
+      table.update(key, key);
+      gettimeofday(&t_u2, NULL);
+      elapsed_time_u += (t_u2.tv_sec - t_u1.tv_sec) + (t_u2.tv_usec - t_u1.tv_usec) / 1e6;
     }
   }
 
