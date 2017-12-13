@@ -43,7 +43,7 @@ benchmark: example/benchmark.o $(LIBOBJECTS)
 time_bench: example/time_bench.o $(LIBOBJECTS) 
 	$(CC) example/time_bench.o $(LIBOBJECTS) $(LDFLAGS) -o $@
 
-mutli_time_bench: example/multi_time_bench.o $(LIBOBJECTS) 
+multi_time_bench: example/multi_time_bench.o $(LIBOBJECTS) 
 	$(CC) example/multi_time_bench.o $(LIBOBJECTS) $(LDFLAGS) -o $@
 
 false_positive_bench: example/false_positive_bench.o $(LIBOBJECTS) 

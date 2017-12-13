@@ -22,11 +22,9 @@ int num_threads;
 double elapsed_time_r = 0.0;
 double elapsed_time_i = 0.0;
 double elapsed_time_u = 0.0;
+uint64_t num_inserts = 0;
 
 void test_read() {
-
-  uint64_t key; // val = key
-  uint64_t val;
 
   std::ifstream file_in;
   file_in.open(file_name);
@@ -68,17 +66,19 @@ void test_mutate() {
   struct timeval t_u1, t_u2;
   struct timeval t_i1, t_i2;
 
+  std::string op;
+
   while(file_in >> op) {
     file_in >> key;
-    if (op == "WRITE") {
+    if (op == "INSERT") {
       gettimeofday(&t_i1, NULL);
-      table->insert(key, key);
+      num_inserts += table->insert(key, key);
       gettimeofday(&t_i2, NULL);
       time_elapsed_i += (t_i2.tv_sec - t_i1.tv_sec) + (t_i2.tv_usec - t_i1.tv_usec) / 1e6;
     } else if (op == "UPDATE") {
-      gettimeofday(&t_i1, NULL);
-      table->update(key, key);
-      gettimeofday(&t_i2, NULL);
+      gettimeofday(&t_u1, NULL);
+      num_inserts += table->update(key, key);
+      gettimeofday(&t_u2, NULL);
       time_elapsed_u += (t_u2.tv_sec - t_u1.tv_sec) + (t_u2.tv_usec - t_u1.tv_usec) / 1e6;
     }
   }
@@ -98,11 +98,11 @@ int main(int argc, char **argv) {
 
   file_name = argv[1];
 
-  init_size = std::atoll(argv[2]);
+  init_size = std::atol(argv[2]);
 
   num_threads = std::atoi(argv[3]);
 
-  table = new CuckooFilter<uint64_t, 12> table(init_size);
+  table = new CuckooFilter<uint64_t, 12>(init_size);
 
   std::vector<std::thread> threads;
 
@@ -119,6 +119,7 @@ int main(int argc, char **argv) {
   }
 
   std::cout << std::string(file_name) << ", "
+            << num_inserts << ", "
             << elapsed_time_r << ", "
             << elapsed_time_i << ", "
             << elapsed_time_u << ", "

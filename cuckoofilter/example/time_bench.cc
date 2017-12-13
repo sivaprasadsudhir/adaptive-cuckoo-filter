@@ -23,9 +23,7 @@ int main(int argc, char **argv) {
   char* file_name;
   file_name = argv[1];
 
-  // (1<<16) * 2 or (1<<20) * 2
   uint64_t init_size = std::atoll(argv[2]);
-  init_size = (1<<16) * 2;
   CuckooFilter<uint64_t, 12> table(init_size);
 
   std::ifstream file_in;
@@ -45,6 +43,8 @@ int main(int argc, char **argv) {
   struct timeval t_i1, t_i2;
   struct timeval t_u1, t_u2;
 
+  int num_inserted = 0;
+
   while(file_in >> op) {
     file_in >> key;
     if(op == "READ") {
@@ -54,18 +54,19 @@ int main(int argc, char **argv) {
       elapsed_time_r += (t_r2.tv_sec - t_r1.tv_sec) + (t_r2.tv_usec - t_r1.tv_usec) / 1e6;
     } else if(op == "INSERT") {
       gettimeofday(&t_i1, NULL);
-      table.insert(key, key);
+      num_inserted += table.insert(key, key);
       gettimeofday(&t_i2, NULL);
       elapsed_time_i += (t_i2.tv_sec - t_i1.tv_sec) + (t_i2.tv_usec - t_i1.tv_usec) / 1e6;
     } else {
       gettimeofday(&t_u1, NULL);
-      table.update(key, key);
+      num_inserted += table.update(key, key);
       gettimeofday(&t_u2, NULL);
       elapsed_time_u += (t_u2.tv_sec - t_u1.tv_sec) + (t_u2.tv_usec - t_u1.tv_usec) / 1e6;
     }
   }
 
   std::cout << std::string(file_name) << ", "
+            << num_inserted << ", "
             << elapsed_time_r << ", "
             << elapsed_time_i << ", "
             << elapsed_time_u << ", "
