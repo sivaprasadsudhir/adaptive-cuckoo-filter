@@ -1,3 +1,4 @@
+set(CMAKE_CXX_FLAGS "-O3")
 add_library(libcuckoo-c-intf INTERFACE)
 add_library(libcuckoo-c-impl INTERFACE)
 

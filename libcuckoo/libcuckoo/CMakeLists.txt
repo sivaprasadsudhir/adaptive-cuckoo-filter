@@ -1,3 +1,4 @@
+set(CMAKE_CXX_FLAGS "-O3")
 add_library(libcuckoo INTERFACE)
 
 # Include relative to the base directory

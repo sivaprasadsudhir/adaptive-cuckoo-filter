@@ -14,24 +14,6 @@ using cuckoofilter::CuckooFilter;
 
 int main(int argc, char **argv) {
 
-  // if(argc < 2) {
-  //   std::cout << "Arguments not supplied properly" << std::endl;
-  //   exit(1);
-  // }
-
-  // char* file_name;
-
-  // file_name = argv[1];
-
-  // ifstream file_in;
-  // ofstream file_out;
-
-  // file_in.open(file_name);
-  // string op;
-  // uint64_t 
-  // while()
-
-
   srand (time(NULL));
 
   size_t s_size, a_size, ratio_size, query_size;
@@ -46,7 +28,7 @@ int main(int argc, char **argv) {
   query_size = 1;
   uint64_t query[] = {100000000};
   
-  s_size = 10000;
+  s_size = 1000000;
   // std::vector<int> s(s_size);
   // std::vector<int> a(s_size * 100);
 
@@ -88,13 +70,14 @@ int main(int argc, char **argv) {
       int false_positives = 0;
 
       for(uint64_t k = 0; k < query[j]; k++) {
-        int key = offset + rand() % a_size;
+        // int key = offset + rand() % a_size;
+        int key = rand() % s_size;
         uint64_t val;
 
         // int found_in_filter = table.findinfilter(key);
         int found = table.find(key, val);
 
-        assert(!found);
+        assert(found);
 
         // int key = rand() % s_size;
         // uint64_t val;
@@ -111,10 +94,10 @@ int main(int argc, char **argv) {
 
       gettimeofday(&t3, NULL);
 
-      std::cout << 100 * (false_positives * 1.0) / query[j] << "\t\t";
+      // std::cout << 100 * (false_positives * 1.0) / query[j] << "\t\t";
     }
 
-    std::cout << std::endl;
+    // std::cout << std::endl;
     std::cout << "Time taken for insert: " << (t2.tv_sec - t1.tv_sec) + (t2.tv_usec - t1.tv_usec) / 1e6 << std::endl;
     std::cout << "Time taken for lookup: " << (t3.tv_sec - t2.tv_sec) + (t3.tv_usec - t2.tv_usec) / 1e6 << std::endl;
   }

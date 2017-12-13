@@ -1,3 +1,4 @@
+set(CMAKE_CXX_FLAGS "-O3")
 add_executable(nested_table nested_table.cc)
 target_link_libraries(nested_table libcuckoo)
 

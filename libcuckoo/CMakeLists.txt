@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.1.0)
+set(CMAKE_CXX_FLAGS "-O3")
 project(libcuckoo LANGUAGES C CXX)
 set(libcuckoo_VERSION_MAJOR 0)
 set(libcuckoo_VERSION_MINOR 2)
