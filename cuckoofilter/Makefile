@@ -20,7 +20,7 @@ ALIB = libcuckoofilter.a
 
 TEST = test
 
-all: $(TEST) old_test time_bench multi_time_bench false_positive_bench cbench cbench_cuckoohash
+all: $(TEST) old_test time_bench multi_time_bench false_positive_bench cbench cbench_cuckoohash list
 
 clean:
 	rm -f $(TEST) */*.o
@@ -45,6 +45,9 @@ time_bench: example/time_bench.o $(LIBOBJECTS)
 
 multi_time_bench: example/multi_time_bench.o $(LIBOBJECTS) 
 	$(CC) example/multi_time_bench.o $(LIBOBJECTS) $(LDFLAGS) -o $@
+
+list: example/list.o $(LIBOBJECTS) 
+	$(CC) example/list.o $(LIBOBJECTS) $(LDFLAGS) -o $@
 
 false_positive_bench: example/false_positive_bench.o $(LIBOBJECTS) 
 	$(CC) example/false_positive_bench.o $(LIBOBJECTS) $(LDFLAGS) -o $@
