@@ -330,10 +330,6 @@ bool CuckooFilter<ItemType, bits_per_item, TableType, HashFamily>::insert(
   uint16_t tag[4];
   uint64_t tag_hash;
 
-  // if (atomic_load(&victim_.used)) {
-  //   return false;
-  // }
-
   GenerateIndexTagHash(key, &i1, &i2, tag, tag_hash);
   return insert_impl(key, val, i1, i2, tag, tag_hash);
 }
